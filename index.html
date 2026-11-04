@@ -200,6 +200,8 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 .galeria{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,26px)}
 .trabalho{animation:surgir .5s ease both}
 .trabalho .midia{box-shadow:var(--sombra)}
+.trabalho .midia video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.trabalho .play{width:56px;height:56px;margin:-28px 0 0 -28px}
 .trabalho .tag{position:absolute;top:12px;left:12px;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--azul);color:#fff;padding:6px 10px;border-radius:999px}
 .trabalho h3{font-size:1.15rem;margin:16px 0 4px;font-family:var(--serif)}
 .trabalho p{font-size:.88rem;color:var(--tinta-suave)}
@@ -631,28 +633,48 @@ const casePassos = [
   { titulo: "Oferta",     texto: "Pega o problema mais comum e mostra que a solução não é gastar mais, é o produto oferecido.", video: "", capa: "", link: "", degrade: "g3" }
 ];
 
-/* Nichos (o primeiro, "todos", mostra tudo) */
+/* Nichos, na ordem dos botões. O primeiro abre selecionado. "todos" mostra tudo. */
 const nichos = [
-  { id: "todos",   nome: "Todos" },
-  { id: "beleza",  nome: "Beleza" },
-  { id: "moda",    nome: "Moda" },
-  { id: "casa",    nome: "Casa e decoração" },
-  { id: "fitness", nome: "Fitness" }
+  { id: "fitness",     nome: "Fitness" },
+  { id: "beleza",      nome: "Beleza" },
+  { id: "moda",        nome: "Moda" },
+  { id: "casa",        nome: "Casa" },
+  { id: "experiencia", nome: "Experiência" },
+  { id: "sensorial",   nome: "Sensorial/Estético" },
+  { id: "todos",       nome: "Todos" }
 ];
 
-/* Trabalhos da galeria
-   nicho: use um id da lista acima (beleza, moda, casa, fitness)
-   imagem: nome do arquivo (ex.: "trabalho-1.jpg"). Deixe "" para usar o degradê.
-   link: opcional, abre o trabalho em nova aba */
+/* Vídeos da galeria: 4 por nicho
+   nicho: use um id da lista acima
+   titulo e marca: TROQUE pelo nome do vídeo e da marca
+   video: nome do arquivo do vídeo vertical 9:16 (ex.: "fitness-1.mp4"), na mesma pasta do index. Toca direto na página.
+   capa: imagem que aparece antes do play (ex.: "fitness-1.jpg"). Opcional.
+   link: se preferir, cole o link do Reels, TikTok ou Drive. Usado quando "video" estiver vazio. */
 const trabalhos = [
-  { nicho: "beleza",  titulo: "Rotina de skincare",       marca: "Marca 01", formato: "Vídeo UGC 9:16",   imagem: "", link: "" },
-  { nicho: "beleza",  titulo: "Maquiagem do dia a dia",   marca: "Marca 02", formato: "Corte para anúncio", imagem: "", link: "" },
-  { nicho: "moda",    titulo: "Provador em casa",         marca: "Marca 03", formato: "Vídeo UGC 9:16",   imagem: "", link: "" },
-  { nicho: "moda",    titulo: "Três looks, uma peça",     marca: "Marca 04", formato: "Fotos do produto", imagem: "", link: "" },
-  { nicho: "casa",    titulo: "Cantinho renovado",        marca: "Marca 05", formato: "Antes e depois",   imagem: "", link: "" },
-  { nicho: "casa",    titulo: "Organização da cozinha",   marca: "Marca 06", formato: "Unboxing",         imagem: "", link: "" },
-  { nicho: "fitness", titulo: "Treino de 10 minutos",     marca: "Marca 07", formato: "Vídeo UGC 9:16",   imagem: "", link: "" },
-  { nicho: "fitness", titulo: "Lanche pós treino",        marca: "Marca 08", formato: "Publicação no perfil", imagem: "", link: "" }
+  { nicho: "fitness",     titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "fitness",     titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "fitness",     titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "fitness",     titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "sensorial",   titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "sensorial",   titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "sensorial",   titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
+  { nicho: "sensorial",   titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" }
 ];
 
 /* Serviços */
@@ -670,7 +692,7 @@ const metricas = [
   { valor: 62, sufixo: "",     rotulo: "vídeos entregues" },
   { valor: 20, sufixo: "",     rotulo: "marcas atendidas" },
   { valor: 24, sufixo: " mil", rotulo: "views somadas" },
-  { valor: 4,  sufixo: "",     rotulo: "nichos atendidos" }
+  { valor: 6,  sufixo: "",     rotulo: "nichos atendidos" }
 ];
 
 /* Resultados de campanha: TROQUE pelos resultados reais */
@@ -740,15 +762,22 @@ $("#filtros").innerHTML = nichos.map((n, i) => {
 function desenharGaleria(nicho) {
   const lista = nicho === "todos" ? trabalhos : trabalhos.filter(t => t.nicho === nicho);
   $("#galeria").innerHTML = lista.map((t, i) => {
-    const midia = `<div class="midia r-4x5 ${degrades[i % 4]}">
-        ${t.imagem ? `<img src="${esc(t.imagem)}" alt="${esc(t.titulo)} para ${esc(t.marca)}" loading="lazy">` : `<span class="legenda">${esc(t.formato)}</span>`}
-        <span class="tag">${esc(nomeNicho(t.nicho))}</span>
+    const nome = `${t.titulo}, ${nomeNicho(t.nicho)}`;
+    const tag = `<span class="tag">${esc(nomeNicho(t.nicho))}</span>`;
+    let midia;
+    if (t.video) {
+      midia = `<div class="midia r-9x16 ${degrades[i % 4]}"><video src="${esc(t.video)}" ${t.capa ? `poster="${esc(t.capa)}"` : ""} controls playsinline preload="metadata" aria-label="Vídeo ${esc(nome)}"></video>${tag}</div>`;
+    } else {
+      midia = `<div class="midia r-9x16 ${degrades[i % 4]}">
+        ${t.capa ? `<img src="${esc(t.capa)}" alt="Capa do vídeo ${esc(nome)}" loading="lazy">` : `<span class="legenda">Vídeo 9:16</span>`}
+        ${iconePlay}${tag}
       </div>`;
-    const corpo = `${midia}<h3>${esc(t.titulo)}</h3><p>${esc(t.marca)} · ${esc(t.formato)}</p>`;
+    }
+    const corpo = `${midia}<h3>${esc(t.titulo)}</h3><p>${esc(t.marca)}</p>`;
     return `<article class="trabalho" style="animation-delay:${semMovimento ? 0 : i * 60}ms">
-      ${t.link ? `<a href="${esc(t.link)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block">${corpo}</a>` : corpo}
+      ${!t.video && t.link ? `<a href="${esc(t.link)}" target="_blank" rel="noopener" aria-label="Assistir: ${esc(nome)}" style="text-decoration:none;color:inherit;display:block">${corpo}</a>` : corpo}
     </article>`;
-  }).join("") || `<p>Nenhum trabalho neste nicho ainda.</p>`;
+  }).join("") || `<p>Nenhum vídeo neste nicho ainda.</p>`;
 }
 $("#filtros").addEventListener("click", e => {
   const b = e.target.closest(".filtro");
@@ -756,7 +785,7 @@ $("#filtros").addEventListener("click", e => {
   document.querySelectorAll(".filtro").forEach(f => f.setAttribute("aria-pressed", f === b));
   desenharGaleria(b.dataset.nicho);
 });
-desenharGaleria("todos");
+desenharGaleria(nichos[0].id);
 
 /* Serviços */
 $("#servicosGrid").innerHTML = servicos.map((s, i) => `
