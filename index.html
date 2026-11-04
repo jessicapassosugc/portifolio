@@ -165,19 +165,26 @@ section{scroll-margin-top:var(--header)}
    3. DESTAQUES
    ========================================================= */
 .destaques{background:var(--papel)}
-.destaques-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,2.6vw,34px)}
-.destaque{display:block;text-decoration:none;color:inherit;border-radius:var(--raio-g)}
-.destaque .midia{transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s}
-.destaque:hover .midia{transform:translateY(-6px);box-shadow:0 30px 60px -24px rgba(46,33,25,.35)}
-.play{position:absolute;top:50%;left:50%;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:50%;background:rgba(250,247,243,.92);display:grid;place-items:center;box-shadow:0 10px 30px -10px rgba(46,33,25,.4);transition:transform .35s,background .35s}
-.play svg{width:22px;height:22px;margin-left:4px;fill:var(--azul);transition:fill .35s}
-.destaque:hover .play{transform:scale(1.08);background:var(--azul)}
-.destaque:hover .play svg{fill:#fff}
-.destaque-info{padding:24px 4px 0}
-.destaque-num{font-family:var(--serif);font-size:clamp(2.6rem,4.4vw,3.6rem);line-height:1;letter-spacing:-.03em;color:var(--azul)}
-.destaque-rot{display:block;font-size:.76rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-suave);margin:8px 0 16px}
-.destaque h3{font-size:1.45rem;margin-bottom:6px}
-.destaque p{color:var(--tinta-suave);font-size:.95rem}
+/* Case: cabeçalho em duas colunas, 4 passos em grade 2x2 e a jornada no fim */
+.case-topo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,80px);align-items:start;margin-bottom:clamp(48px,7vw,90px)}
+.case-titulo{font-family:var(--serif);font-weight:400;font-size:clamp(2.4rem,5.4vw,4.2rem);line-height:1.08;letter-spacing:-.01em;color:var(--laranja)}
+.case-meta{font-family:var(--mono);font-size:clamp(.92rem,1.3vw,1.05rem);line-height:1.5;color:var(--tinta);padding-top:clamp(4px,1.4vw,20px)}
+.case-meta p+p{margin-top:clamp(28px,4vw,52px)}
+.case-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(56px,8vw,110px) clamp(28px,4vw,60px)}
+.case-passo{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1fr);gap:clamp(12px,1.6vw,20px);align-items:start}
+.case-video{position:relative;display:block;aspect-ratio:9/16;overflow:hidden;background:linear-gradient(160deg,#efe4d4,#dcc7aa,#b98a5e);box-shadow:-14px 22px 34px -14px rgba(46,33,25,.38);color:inherit;text-decoration:none}
+.case-video.g2{background:linear-gradient(160deg,#e6d6c0,#c79c6e,#8a5a2b)}
+.case-video.g3{background:linear-gradient(160deg,#d9c2a3,#9a6b42,#4a3424)}
+.case-video.g4{background:linear-gradient(160deg,#fbf8f3,#e6d6c0,#b98a5e)}
+.case-video video,.case-video img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.case-video .legenda{position:absolute;left:10px;bottom:10px;font-size:.66rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta);background:rgba(250,247,243,.8);padding:6px 10px;border-radius:999px}
+.play{position:absolute;top:50%;left:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:rgba(46,33,25,.62);display:grid;place-items:center;transition:transform .35s,background .35s;pointer-events:none}
+.play svg{width:22px;height:22px;margin-left:4px;fill:#fff}
+a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
+.case-texto h3{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,3.6vw,3rem);line-height:1;letter-spacing:-.02em;color:var(--tinta);margin-bottom:4px;white-space:nowrap}
+.case-texto p{font-size:clamp(.95rem,1.25vw,1.08rem);font-weight:400;line-height:1.45;color:var(--tinta)}
+.case-jornada{margin-top:clamp(56px,8vw,100px);font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.6;color:var(--tinta)}
+.case-jornada p+p{margin-top:1.4em}
 
 /* =========================================================
    4. TRABALHOS
@@ -321,7 +328,8 @@ section{scroll-margin-top:var(--header)}
   .capa-grid,.sobre-grid,.contato-grid{grid-template-columns:1fr}
   .capa-foto-wrap{max-width:420px;width:100%;margin:10px auto 0;order:2}
   .sobre-grid .midia{max-width:460px}
-  .destaques-grid{grid-template-columns:1fr;max-width:420px;margin-inline:auto}
+  .case-topo{grid-template-columns:1fr}
+  .case-grid{grid-template-columns:1fr;max-width:520px;margin-inline:auto}
   .resultados{grid-template-columns:1fr}
   .depoimentos{grid-template-columns:1fr}
   .galeria{grid-template-columns:repeat(2,1fr)}
@@ -425,14 +433,21 @@ section{scroll-margin-top:var(--header)}
 <!-- ================= 3. CONTEÚDOS DE DESTAQUE ================= -->
 <section class="secao destaques" id="destaques" aria-labelledby="titulo-destaques">
   <div class="container">
-    <div class="cabeca">
-      <span class="rotulo reveal"><span class="num-secao">02</span> Conteúdos de destaque</span>
-      <h2 id="titulo-destaques" class="reveal d1">Os vídeos que <em>mais</em> renderam.</h2>
+    <div class="case-topo">
+      <h2 id="titulo-destaques" class="case-titulo reveal">A estratégia.<br>Da descoberta ao<br>desejo.</h2>
+      <div class="case-meta reveal d1">
+        <p>Case / Maison de parfum</p>
+        <p>A sequência como uma escada de confiança, cada vídeo prepara o terreno pro próximo.</p>
+      </div>
     </div>
-    <!-- Os três cards vêm do array "destaques" no script.
-         LINK DO VÍDEO: campo "link" de cada item.
-         CAPA DO VÍDEO: campo "capa" de cada item (ex.: "capa-1.jpg"). Vazio mostra o degradê. -->
-    <div class="destaques-grid" id="destaquesGrid"></div>
+    <!-- Os quatro passos vêm do array "casePassos" no script.
+         VÍDEO: campo "video" de cada item (ex.: "video-1.mp4", na mesma pasta do index).
+         CAPA: campo "capa" (ex.: "capa-1.jpg"). LINK: campo "link" (Reels, TikTok, Drive). -->
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="case-jornada reveal">
+      <p>No fim, a jornada é:</p>
+      <p>eu te reconheço → eu decido por você → eu te dou o motivo pra desconfiar de menos → eu te entrego a solução</p>
+    </div>
   </div>
 </section>
 
@@ -602,14 +617,16 @@ const numerosCapa = [
 /* Marcas da faixa da capa (adicione ou remova à vontade) */
 const marcas = ["Lupo", "Bauducco", "Cerealista Vida+", "Swift", "OuviBiju", "Eudora", "OLX", "OBoticario", "Shibata"];
 
-/* Conteúdos de destaque
-   link: cole aqui o link do vídeo (Reels, TikTok, Drive, YouTube)
-   capa: nome do arquivo da capa vertical 9:16 (ex.: "capa-1.jpg"). Deixe "" para usar o degradê.
-   numero e rotulo: TROQUE pelos números reais de cada vídeo */
-const destaques = [
-  { link: "https://www.instagram.com/jessica_rpassos/", capa: "", numero: "+00K", rotulo: "views no reels",  titulo: "Título do conteúdo 01", contexto: "Marca 01 · uma linha sobre o objetivo do vídeo", degrade: "" },
-  { link: "https://www.instagram.com/jessica_rpassos/", capa: "", numero: "00%",  rotulo: "taxa de retenção", titulo: "Título do conteúdo 02", contexto: "Marca 02 · uma linha sobre o objetivo do vídeo", degrade: "g3" },
-  { link: "https://www.instagram.com/jessica_rpassos/", capa: "", numero: "+000", rotulo: "vendas no anúncio", titulo: "Título do conteúdo 03", contexto: "Marca 03 · uma linha sobre o objetivo do vídeo", degrade: "g2" }
+/* Case Maison de parfum: os 4 vídeos da sequência
+   video: nome do arquivo do vídeo vertical 9:16 (ex.: "video-1.mp4"), na mesma pasta do index. Toca direto na página.
+   capa: imagem que aparece antes do play (ex.: "capa-1.jpg"). Opcional.
+   link: se preferir, cole o link do Reels, TikTok ou Drive. Usado quando "video" estiver vazio.
+   Tudo vazio mostra o espaço reservado com o degradê. */
+const casePassos = [
+  { titulo: "Clareza",    texto: "Usamos o gancho de tendência (fragrâncias do verão 2027) pra atrair quem quer sair na frente.", video: "", capa: "", link: "", degrade: "" },
+  { titulo: "Decisão",    texto: "Tira o esforço de escolha. Em vez de mostrar o catálogo inteiro, oferecemos três personagens. A cliente já começa a se imaginar usando, sem precisar entender de perfumaria.", video: "", capa: "", link: "", degrade: "g4" },
+  { titulo: "Interesse",  texto: "É um vídeo de confissão, baseado em dúvidas reais, que usa prova social (nota da loja, embalagem, originalidade) pra derrubar possíveis objeções.", video: "", capa: "", link: "", degrade: "g2" },
+  { titulo: "Oferta",     texto: "Pega o problema mais comum e mostra que a solução não é gastar mais, é o produto oferecido.", video: "", capa: "", link: "", degrade: "g3" }
 ];
 
 /* Nichos (o primeiro, "todos", mostra tudo) */
@@ -688,20 +705,28 @@ $("#capaNumeros").innerHTML = numerosCapa.map(n =>
 const listaMarcas = marcas.map(m => `<li>${esc(m)}</li>`).join("");
 $("#faixaTrilho").innerHTML = `<ul>${listaMarcas}</ul><ul aria-hidden="true">${listaMarcas}</ul>`;
 
-/* Destaques */
-$("#destaquesGrid").innerHTML = destaques.map((d, i) => `
-  <a class="destaque reveal d${i + 1}" href="${esc(d.link)}" target="_blank" rel="noopener" aria-label="Assistir: ${esc(d.titulo)}, ${esc(d.numero)} ${esc(d.rotulo)}">
-    <div class="midia r-9x16 ${d.degrade}">
-      ${d.capa ? `<img src="${esc(d.capa)}" alt="Capa do vídeo ${esc(d.titulo)}" loading="lazy">` : `<span class="legenda">Capa do vídeo 9:16</span>`}
-      <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>
+/* Case: 4 passos com vídeo */
+const iconePlay = `<span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>`;
+$("#caseGrid").innerHTML = casePassos.map((p, i) => {
+  const nome = `${i + 1}. ${p.titulo}`;
+  let midia;
+  if (p.video) {
+    midia = `<div class="case-video ${p.degrade}"><video src="${esc(p.video)}" ${p.capa ? `poster="${esc(p.capa)}"` : ""} controls playsinline preload="metadata" aria-label="Vídeo ${esc(nome)}"></video></div>`;
+  } else {
+    const dentro = (p.capa ? `<img src="${esc(p.capa)}" alt="Capa do vídeo ${esc(nome)}" loading="lazy">` : `<span class="legenda">Vídeo ${i + 1} · 9:16</span>`) + iconePlay;
+    midia = p.link
+      ? `<a class="case-video ${p.degrade}" href="${esc(p.link)}" target="_blank" rel="noopener" aria-label="Assistir: ${esc(nome)}">${dentro}</a>`
+      : `<div class="case-video ${p.degrade}">${dentro}</div>`;
+  }
+  return `
+  <article class="case-passo reveal d${(i % 2) + 1}">
+    ${midia}
+    <div class="case-texto">
+      <h3>${esc(nome)}</h3>
+      <p>${esc(p.texto)}</p>
     </div>
-    <div class="destaque-info">
-      <div class="destaque-num">${esc(d.numero)}</div>
-      <span class="destaque-rot">${esc(d.rotulo)}</span>
-      <h3>${esc(d.titulo)}</h3>
-      <p>${esc(d.contexto)}</p>
-    </div>
-  </a>`).join("");
+  </article>`;
+}).join("");
 
 /* Trabalhos e filtros */
 const nomeNicho = id => (nichos.find(n => n.id === id) || {}).nome || id;
