@@ -290,6 +290,33 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 .rodape :focus-visible,.servicos :focus-visible{outline-color:#dcb98f}
 
 /* =========================================================
+   FOTOS (dentro de Trabalhos) e visualização ampliada
+   ========================================================= */
+.fotos-bloco{margin-bottom:clamp(80px,11vw,140px)}
+.fotos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,18px)}
+.foto{position:relative;display:block;width:100%;padding:0;border:0;cursor:zoom-in;aspect-ratio:4/5;overflow:hidden;background:linear-gradient(160deg,#efe4d4,#dcc7aa,#b98a5e);font:inherit;color:inherit}
+.foto.g2{background:linear-gradient(160deg,#e6d6c0,#c79c6e,#8a5a2b)}
+.foto.g3{background:linear-gradient(160deg,#d9c2a3,#9a6b42,#4a3424)}
+.foto.g4{background:linear-gradient(160deg,#fbf8f3,#e6d6c0,#b98a5e)}
+.foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.foto:hover img{transform:scale(1.04)}
+.foto .legenda{position:absolute;left:12px;top:12px;font-size:.66rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta);background:rgba(250,247,243,.8);padding:6px 10px;border-radius:999px}
+.foto-seta{position:absolute;right:clamp(10px,1.4vw,16px);bottom:clamp(10px,1.4vw,16px);width:clamp(36px,3.4vw,46px);height:clamp(36px,3.4vw,46px);display:grid;place-items:center;background:var(--papel);color:var(--tinta);transition:background .3s,color .3s}
+.foto-seta svg{width:42%;height:42%}
+.foto:hover .foto-seta,.foto:focus-visible .foto-seta{background:var(--tinta);color:var(--papel)}
+.lupa{position:fixed;inset:0;z-index:320;background:rgba(30,21,15,.92);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:clamp(14px,3vw,40px);opacity:0;transition:opacity .3s}
+.lupa.visivel{opacity:1}
+.lupa-palco{position:relative;min-width:0;height:calc(100vh - clamp(28px,6vw,80px) - 40px);display:grid;place-items:center;margin:0}
+.lupa-palco img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.lupa-vazio{width:min(100%,64vh);aspect-ratio:4/5;display:grid;place-items:center;background:linear-gradient(160deg,#efe4d4,#dcc7aa,#b98a5e);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta)}
+.lupa-legenda{position:absolute;left:0;right:0;bottom:-34px;text-align:center;font-family:var(--mono);font-size:.9rem;color:rgba(241,232,220,.8)}
+.lupa button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(241,232,220,.35);background:transparent;color:#f1e8dc;cursor:pointer;display:grid;place-items:center;transition:background .25s}
+.lupa button:hover{background:rgba(241,232,220,.14)}
+.lupa button svg{width:20px;height:20px}
+.lupa .lupa-fechar{position:absolute;top:clamp(12px,2vw,24px);right:clamp(12px,2vw,24px)}
+.lupa :focus-visible{outline-color:#dcb98f}
+
+/* =========================================================
    CARD DE CAPTURA (mídia kit)
    ========================================================= */
 .modal-fundo{position:fixed;inset:0;z-index:300;background:rgba(46,33,25,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;opacity:0;transition:opacity .35s}
@@ -338,6 +365,12 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
   .resultados{grid-template-columns:1fr}
   .depoimentos{grid-template-columns:1fr}
   .galeria{grid-template-columns:repeat(2,1fr)}
+  .fotos-grid{grid-template-columns:repeat(2,1fr)}  .lupa{grid-template-columns:1fr;padding:60px 12px 90px}
+  .lupa-palco{height:calc(100vh - 170px)}
+  .lupa .lupa-ant,.lupa .lupa-prox{position:absolute;bottom:24px}
+  .lupa .lupa-ant{left:calc(50% - 60px)}
+  .lupa .lupa-prox{left:calc(50% + 12px)}
+  .lupa-legenda{bottom:-30px}
 }
 @media (max-width:560px){
   :root{--header:64px}
@@ -458,6 +491,16 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 <!-- ================= 4. TRABALHOS POR NICHO ================= -->
 <section class="secao" id="trabalhos" aria-labelledby="titulo-trabalhos">
   <div class="container">
+    <!-- FOTOS: as 12 fotos vêm do array "fotos" no script -->
+    <div class="fotos-bloco">
+      <div class="cabeca">
+        <span class="rotulo reveal">Textura, luz e composição</span>
+        <h2 class="reveal d1">Fotos que fazem o produto <em>falar</em>.</h2>
+        <p class="reveal d2">Fotografia de produto, moda e beleza. Clique em uma foto para ver maior.</p>
+      </div>
+      <div class="fotos-grid" id="fotosGrid"></div>
+    </div>
+
     <div class="cabeca">
       <span class="rotulo reveal"><span class="num-secao">03</span> Trabalhos por nicho</span>
       <h2 id="titulo-trabalhos" class="reveal d1">Um olhar para <em>cada</em> universo.</h2>
@@ -581,6 +624,14 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 </footer>
 
 <!-- ================= CARD DE CAPTURA (MÍDIA KIT) ================= -->
+<!-- Visualização ampliada das fotos -->
+<div class="lupa" id="lupa" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
+  <button type="button" class="lupa-ant" id="lupaAnt" aria-label="Foto anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <figure class="lupa-palco" id="lupaPalco"></figure>
+  <button type="button" class="lupa-prox" id="lupaProx" aria-label="Próxima foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></button>
+  <button type="button" class="lupa-fechar" id="lupaFechar" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+
 <div class="modal-fundo" id="modalFundo" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
     <button class="fechar" id="modalFechar" aria-label="Fechar">×</button>
@@ -631,6 +682,24 @@ const casePassos = [
   { titulo: "Decisão",    texto: "Tira o esforço de escolha. Em vez de mostrar o catálogo inteiro, oferecemos três personagens. A cliente já começa a se imaginar usando, sem precisar entender de perfumaria.", video: "", capa: "", link: "", degrade: "g4" },
   { titulo: "Interesse",  texto: "É um vídeo de confissão, baseado em dúvidas reais, que usa prova social (nota da loja, embalagem, originalidade) pra derrubar possíveis objeções.", video: "", capa: "", link: "", degrade: "g2" },
   { titulo: "Oferta",     texto: "Pega o problema mais comum e mostra que a solução não é gastar mais, é o produto oferecido.", video: "", capa: "", link: "", degrade: "g3" }
+];
+
+/* Fotos (12) que aparecem antes dos vídeos por nicho
+   imagem: nome do arquivo da foto (ex.: "foto-1.jpg"), na mesma pasta do index. Deixe "" para usar o espaço reservado.
+   descricao: o que aparece na foto (usado na legenda ampliada e para leitores de tela) */
+const fotos = [
+  { imagem: "", descricao: "Foto 01" },
+  { imagem: "", descricao: "Foto 02" },
+  { imagem: "", descricao: "Foto 03" },
+  { imagem: "", descricao: "Foto 04" },
+  { imagem: "", descricao: "Foto 05" },
+  { imagem: "", descricao: "Foto 06" },
+  { imagem: "", descricao: "Foto 07" },
+  { imagem: "", descricao: "Foto 08" },
+  { imagem: "", descricao: "Foto 09" },
+  { imagem: "", descricao: "Foto 10" },
+  { imagem: "", descricao: "Foto 11" },
+  { imagem: "", descricao: "Foto 12" }
 ];
 
 /* Nichos, na ordem dos botões. O primeiro abre selecionado. "todos" mostra tudo. */
@@ -751,6 +820,66 @@ $("#caseGrid").innerHTML = casePassos.map((p, i) => {
     </div>
   </article>`;
 }).join("");
+
+/* Fotos e visualização ampliada */
+const setaFoto = `<span class="foto-seta" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg></span>`;
+$("#fotosGrid").innerHTML = fotos.map((f, i) => `
+  <button type="button" class="foto ${degrades[i % 4]}" data-foto="${i}" aria-label="Ver maior: ${esc(f.descricao)}">
+    ${f.imagem ? `<img src="${esc(f.imagem)}" alt="${esc(f.descricao)}" loading="lazy">` : `<span class="legenda">Foto ${pad(i + 1)} · 4:5</span>`}
+    ${setaFoto}
+  </button>`).join("");
+
+const lupa = $("#lupa");
+let fotoAtual = 0, focoAntesLupa = null;
+function mostrarFoto(i) {
+  fotoAtual = (i + fotos.length) % fotos.length;
+  const f = fotos[fotoAtual];
+  $("#lupaPalco").innerHTML = (f.imagem
+    ? `<img src="${esc(f.imagem)}" alt="${esc(f.descricao)}">`
+    : `<div class="lupa-vazio ${degrades[fotoAtual % 4]}">Foto ${pad(fotoAtual + 1)}</div>`)
+    + `<figcaption class="lupa-legenda">${pad(fotoAtual + 1)} / ${pad(fotos.length)}${f.imagem ? " · " + esc(f.descricao) : ""}</figcaption>`;
+}
+function abrirLupa(i) {
+  focoAntesLupa = document.activeElement;
+  mostrarFoto(i);
+  lupa.hidden = false;
+  document.body.style.overflow = "hidden";
+  requestAnimationFrame(() => lupa.classList.add("visivel"));
+  $("#lupaFechar").focus();
+}
+function fecharLupa() {
+  lupa.classList.remove("visivel");
+  document.body.style.overflow = "";
+  setTimeout(() => { lupa.hidden = true; }, semMovimento ? 0 : 300);
+  if (focoAntesLupa && focoAntesLupa.focus) focoAntesLupa.focus();
+}
+$("#fotosGrid").addEventListener("click", e => {
+  const b = e.target.closest(".foto");
+  if (b) abrirLupa(+b.dataset.foto);
+});
+$("#lupaFechar").addEventListener("click", fecharLupa);
+$("#lupaAnt").addEventListener("click", () => mostrarFoto(fotoAtual - 1));
+$("#lupaProx").addEventListener("click", () => mostrarFoto(fotoAtual + 1));
+lupa.addEventListener("click", e => { if (e.target === lupa || e.target.id === "lupaPalco") fecharLupa(); });
+document.addEventListener("keydown", e => {
+  if (lupa.hidden) return;
+  if (e.key === "Escape") fecharLupa();
+  else if (e.key === "ArrowLeft") mostrarFoto(fotoAtual - 1);
+  else if (e.key === "ArrowRight") mostrarFoto(fotoAtual + 1);
+  else if (e.key === "Tab") { /* mantém o foco dentro da visualização */
+    const foc = lupa.querySelectorAll("button"), pri = foc[0], ult = foc[foc.length - 1];
+    if (e.shiftKey && document.activeElement === pri) { e.preventDefault(); ult.focus(); }
+    else if (!e.shiftKey && document.activeElement === ult) { e.preventDefault(); pri.focus(); }
+  }
+});
+/* deslizar o dedo para o lado troca a foto no celular */
+let toqueX = null;
+lupa.addEventListener("touchstart", e => { toqueX = e.touches[0].clientX; }, { passive: true });
+lupa.addEventListener("touchend", e => {
+  if (toqueX === null) return;
+  const dx = e.changedTouches[0].clientX - toqueX; toqueX = null;
+  if (Math.abs(dx) > 50) mostrarFoto(fotoAtual + (dx < 0 ? 1 : -1));
+});
 
 /* Trabalhos e filtros */
 const nomeNicho = id => (nichos.find(n => n.id === id) || {}).nome || id;
@@ -953,7 +1082,9 @@ $("#formKit").addEventListener("submit", e => {
   $("#kOk").addEventListener("click", () => { fecharModal(); location.hash = "#trabalhos"; });
   $("#kOk").focus();
 });
-if (!lerSessao()) setTimeout(() => { if (!lerSessao()) abrirModal(); }, 7000);
+/* não interrompe quem está vendo uma foto ampliada: espera ela fechar */
+function tentarAbrirModal() { if (lerSessao()) return; if (!lupa.hidden) { setTimeout(tentarAbrirModal, 3000); return; } abrirModal(); }
+if (!lerSessao()) setTimeout(tentarAbrirModal, 7000);
 </script>
 </body>
 </html>
