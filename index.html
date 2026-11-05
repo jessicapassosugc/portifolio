@@ -320,6 +320,9 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 .lupa button svg{width:20px;height:20px}
 .lupa .lupa-fechar{position:absolute;top:clamp(12px,2vw,24px);right:clamp(12px,2vw,24px)}
 .lupa :focus-visible{outline-color:#dcb98f}
+.yt-lupa{grid-template-columns:1fr;justify-items:center}
+.yt-palco{height:min(calc(100vh - 80px),calc((100vw - 32px) * 16 / 9));aspect-ratio:9/16;max-width:calc(100vw - 32px);background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.yt-palco iframe{width:100%;height:100%;border:0;display:block}
 
 /* =========================================================
    CARD DE CAPTURA (mídia kit)
@@ -629,6 +632,12 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 </footer>
 
 <!-- ================= CARD DE CAPTURA (MÍDIA KIT) ================= -->
+<!-- Player do YouTube em tamanho grande -->
+<div class="lupa yt-lupa" id="ytLupa" role="dialog" aria-modal="true" aria-label="Vídeo" hidden>
+  <div class="yt-palco" id="ytPalco"></div>
+  <button type="button" class="lupa-fechar" id="ytFechar" aria-label="Fechar vídeo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+
 <!-- Visualização ampliada das fotos -->
 <div class="lupa" id="lupa" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
   <button type="button" class="lupa-ant" id="lupaAnt" aria-label="Foto anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -904,18 +913,37 @@ function idYoutube(url) {
 }
 function capaYoutube(id, nome) {
   return `<button type="button" class="yt-capa" data-yt-play="${id}" aria-label="Assistir: ${esc(nome)}">
-      <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy">${iconePlay}</button>`;
+      <img src="https://i.ytimg.com/vi/${id}/oar2.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${id}/hqdefault.jpg'" onload="if(this.naturalWidth<400&&!/hqdefault/.test(this.src))this.src='https://i.ytimg.com/vi/${id}/hqdefault.jpg'">${iconePlay}</button>`;
 }
-let ytTocando = null;
+/* O vídeo abre grande, por cima da página: player maior = o YouTube entrega em HD */
+const ytLupa = $("#ytLupa");
+let focoAntesYt = null;
+function abrirYoutube(id, nome) {
+  focoAntesYt = document.activeElement;
+  $("#ytPalco").innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1&cc_load_policy=0&iv_load_policy=3&hl=pt-BR&vq=hd1080" title="${esc(nome)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  ytLupa.hidden = false;
+  document.body.style.overflow = "hidden";
+  requestAnimationFrame(() => ytLupa.classList.add("visivel"));
+  $("#ytFechar").focus();
+}
+function fecharYoutube() {
+  $("#ytPalco").innerHTML = ""; /* tirar o player para o som parar */
+  ytLupa.classList.remove("visivel");
+  ytLupa.hidden = true;
+  document.body.style.overflow = "";
+  if (focoAntesYt && focoAntesYt.focus) focoAntesYt.focus();
+}
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-yt-play]");
   if (!b) return;
-  const caixa = b.closest("[data-yt]"), id = b.dataset.ytPlay;
-  if (ytTocando && ytTocando !== caixa && ytTocando.isConnected) { /* para o vídeo anterior */
-    ytTocando.querySelector("iframe").outerHTML = capaYoutube(ytTocando.dataset.yt, ytTocando.dataset.nome);
-  }
-  b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1&cc_load_policy=0&iv_load_policy=3&hl=pt-BR" title="${esc(b.getAttribute("aria-label"))}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
-  ytTocando = caixa;
+  abrirYoutube(b.dataset.ytPlay, b.getAttribute("aria-label").replace("Assistir: ", ""));
+});
+$("#ytFechar").addEventListener("click", fecharYoutube);
+ytLupa.addEventListener("click", e => { if (e.target === ytLupa) fecharYoutube(); });
+document.addEventListener("keydown", e => {
+  if (ytLupa.hidden) return;
+  if (e.key === "Escape") fecharYoutube();
+  if (e.key === "Tab") { e.preventDefault(); $("#ytFechar").focus(); }
 });
 
 function desenharGaleria(nicho) {
