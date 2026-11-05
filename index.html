@@ -914,7 +914,7 @@ document.addEventListener("click", e => {
   if (ytTocando && ytTocando !== caixa && ytTocando.isConnected) { /* para o vídeo anterior */
     ytTocando.querySelector("iframe").outerHTML = capaYoutube(ytTocando.dataset.yt, ytTocando.dataset.nome);
   }
-  b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1" title="${esc(b.getAttribute("aria-label"))}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1&cc_load_policy=0&iv_load_policy=3&hl=pt-BR" title="${esc(b.getAttribute("aria-label"))}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
   ytTocando = caixa;
 });
 
