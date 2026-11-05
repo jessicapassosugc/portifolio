@@ -202,6 +202,11 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 .trabalho .midia{box-shadow:var(--sombra)}
 .trabalho .midia video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .trabalho .play{width:56px;height:56px;margin:-28px 0 0 -28px}
+.yt-capa{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#1e150f;cursor:pointer}
+.yt-capa img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.yt-capa:hover .play{transform:scale(1.08);background:var(--azul)}
+.trabalho .midia iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.trabalho .midia:has(iframe) .tag{display:none}
 .trabalho .tag{position:absolute;top:12px;left:12px;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--azul);color:#fff;padding:6px 10px;border-radius:999px}
 .trabalho h3{font-size:1.15rem;margin:16px 0 4px;font-family:var(--serif)}
 .trabalho p{font-size:.88rem;color:var(--tinta-suave)}
@@ -718,32 +723,33 @@ const nichos = [
    titulo e marca: TROQUE pelo nome do vídeo e da marca
    video: nome do arquivo do vídeo vertical 9:16 (ex.: "fitness-1.mp4"), na mesma pasta do index. Toca direto na página.
    capa: imagem que aparece antes do play (ex.: "fitness-1.jpg"). Opcional.
-   link: se preferir, cole o link do Reels, TikTok ou Drive. Usado quando "video" estiver vazio. */
+   link: se preferir, cole o link do Reels, TikTok ou Drive. Usado quando "video" estiver vazio.
+   youtube: link do YouTube ou YouTube Shorts. O vídeo toca dentro do próprio site. */
 const trabalhos = [
-  { nicho: "sensorial",   titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "sensorial",   titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "sensorial",   titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "sensorial",   titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "fitness",     titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "fitness",     titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "fitness",     titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "fitness",     titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "beleza",      titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "beleza",      titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "beleza",      titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "beleza",      titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "moda",        titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "moda",        titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "moda",        titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "moda",        titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "casa",        titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "casa",        titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "casa",        titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "casa",        titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "experiencia", titulo: "Vídeo 01", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "experiencia", titulo: "Vídeo 02", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "experiencia", titulo: "Vídeo 03", marca: "Marca", video: "", capa: "", link: "" },
-  { nicho: "experiencia", titulo: "Vídeo 04", marca: "Marca", video: "", capa: "", link: "" }
+  { nicho: "sensorial",   titulo: "Vídeo 01", marca: "Marca", youtube: "https://youtube.com/shorts/BuXYTkAcTx8", video: "", capa: "", link: "" },
+  { nicho: "sensorial",   titulo: "Vídeo 02", marca: "Marca", youtube: "https://youtube.com/shorts/09SJ9cvk9sA", video: "", capa: "", link: "" },
+  { nicho: "sensorial",   titulo: "Vídeo 03", marca: "Marca", youtube: "https://youtube.com/shorts/bYbx7PSaAws", video: "", capa: "", link: "" },
+  { nicho: "sensorial",   titulo: "Vídeo 04", marca: "Marca", youtube: "https://youtube.com/shorts/I7alzuYg6xY", video: "", capa: "", link: "" },
+  { nicho: "fitness",     titulo: "Vídeo 01", marca: "Marca", youtube: "https://youtube.com/shorts/P8lf_rLAGU0", video: "", capa: "", link: "" },
+  { nicho: "fitness",     titulo: "Vídeo 02", marca: "Marca", youtube: "https://youtube.com/shorts/2hF5AJEsu6U", video: "", capa: "", link: "" },
+  { nicho: "fitness",     titulo: "Vídeo 03", marca: "Marca", youtube: "https://youtube.com/shorts/lywLD-rxNOM", video: "", capa: "", link: "" },
+  { nicho: "fitness",     titulo: "Vídeo 04", marca: "Marca", youtube: "https://youtube.com/shorts/CyTenlZls8c", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 01", marca: "Marca", youtube: "https://youtube.com/shorts/RtnM47xZVBg", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 02", marca: "Marca", youtube: "https://youtube.com/shorts/5wSsqSWEHzk", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 03", marca: "Marca", youtube: "https://youtube.com/shorts/JYUPs7DxQa0", video: "", capa: "", link: "" },
+  { nicho: "beleza",      titulo: "Vídeo 04", marca: "Marca", youtube: "https://youtube.com/shorts/9_OY8A4A3mc", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 01", marca: "Marca", youtube: "https://youtube.com/shorts/3JYNXBiQ830", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 02", marca: "Marca", youtube: "https://youtube.com/shorts/fTWkzCsSXdE", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 03", marca: "Marca", youtube: "https://youtube.com/shorts/vMOMZiYj5yI", video: "", capa: "", link: "" },
+  { nicho: "moda",        titulo: "Vídeo 04", marca: "Marca", youtube: "https://youtube.com/shorts/C_CnRQ05ZzE", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 01", marca: "Marca", youtube: "https://youtube.com/shorts/fe0QgZkCqHY", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 02", marca: "Marca", youtube: "https://youtube.com/shorts/Q3mxBSZR5no", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 03", marca: "Marca", youtube: "https://youtube.com/shorts/h1vrkrv4rlg", video: "", capa: "", link: "" },
+  { nicho: "casa",        titulo: "Vídeo 04", marca: "Marca", youtube: "https://youtube.com/shorts/VwcBguvZNBA", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 01", marca: "Marca", youtube: "https://youtube.com/shorts/VPeDsEUpmWU", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 02", marca: "Marca", youtube: "https://youtube.com/shorts/G9P8jWsGWV8", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 03", marca: "Marca", youtube: "https://youtube.com/shorts/G0HCqfV8Evc", video: "", capa: "", link: "" },
+  { nicho: "experiencia", titulo: "Vídeo 04", marca: "Marca", youtube: "https://youtube.com/shorts/bW3l9AmJEGE", video: "", capa: "", link: "" }
 ];
 
 /* Serviços */
@@ -888,13 +894,37 @@ $("#filtros").innerHTML = nichos.map((n, i) => {
   return `<button type="button" class="filtro" data-nicho="${n.id}" aria-pressed="${i === 0}">${esc(n.nome)}<span class="qtd">${qtd}</span></button>`;
 }).join("");
 
+/* YouTube: mostra a capa do vídeo e só carrega o player quando a pessoa clica (a página fica leve) */
+function idYoutube(url) {
+  const m = String(url || "").match(/(?:shorts\/|youtu\.be\/|[?&]v=|embed\/)([\w-]{11})/);
+  return m ? m[1] : "";
+}
+function capaYoutube(id, nome) {
+  return `<button type="button" class="yt-capa" data-yt-play="${id}" aria-label="Assistir: ${esc(nome)}">
+      <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy">${iconePlay}</button>`;
+}
+let ytTocando = null;
+$("#galeria").addEventListener("click", e => {
+  const b = e.target.closest("[data-yt-play]");
+  if (!b) return;
+  const caixa = b.closest("[data-yt]"), id = b.dataset.ytPlay;
+  if (ytTocando && ytTocando !== caixa && ytTocando.isConnected) { /* para o vídeo anterior */
+    ytTocando.querySelector("iframe").outerHTML = capaYoutube(ytTocando.dataset.yt, ytTocando.dataset.nome);
+  }
+  b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1" title="${esc(b.getAttribute("aria-label"))}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  ytTocando = caixa;
+});
+
 function desenharGaleria(nicho) {
   const lista = nicho === "todos" ? trabalhos : trabalhos.filter(t => t.nicho === nicho);
   $("#galeria").innerHTML = lista.map((t, i) => {
     const nome = `${t.titulo}, ${nomeNicho(t.nicho)}`;
     const tag = `<span class="tag">${esc(nomeNicho(t.nicho))}</span>`;
     let midia;
-    if (t.video) {
+    const yt = idYoutube(t.youtube);
+    if (yt) {
+      midia = `<div class="midia r-9x16 ${degrades[i % 4]}" data-yt="${yt}" data-nome="${esc(nome)}">${capaYoutube(yt, nome)}${tag}</div>`;
+    } else if (t.video) {
       midia = `<div class="midia r-9x16 ${degrades[i % 4]}"><video src="${esc(t.video)}" ${t.capa ? `poster="${esc(t.capa)}"` : ""} controls playsinline preload="metadata" aria-label="Vídeo ${esc(nome)}"></video>${tag}</div>`;
     } else {
       midia = `<div class="midia r-9x16 ${degrades[i % 4]}">
