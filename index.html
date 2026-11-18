@@ -546,9 +546,9 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
     <!-- Métricas: array "metricas" no script -->
     <div class="metricas" id="metricas"></div>
 
-    <h3 class="sub-titulo reveal">Resultados de campanha</h3>
-    <!-- Resultados: array "resultados" no script -->
-    <div class="resultados" id="resultados"></div>
+    <!-- "Resultados de campanha" foi tirado por enquanto. Para voltar, cole aqui:
+         <h3 class="sub-titulo reveal">Resultados de campanha</h3>
+         <div class="resultados" id="resultados"></div>  e preencha o array "resultados" no script -->
 
     <h3 class="sub-titulo reveal">Quem já criou comigo</h3>
     <!-- Depoimentos: array "depoimentos" no script -->
@@ -1174,7 +1174,7 @@ $("#metricas").innerHTML = metricas.map((m, i) => `
   </div>`).join("");
 
 /* Resultados */
-$("#resultados").innerHTML = resultados.map((r, i) => `
+if ($("#resultados")) $("#resultados").innerHTML = resultados.map((r, i) => `
   <article class="resultado reveal d${i + 1}">
     <span class="marca">${esc(r.marca)}</span>
     <strong>${esc(r.numero)}</strong>
