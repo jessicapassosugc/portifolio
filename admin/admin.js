@@ -38,6 +38,7 @@ const TITULOS = { portfolio: "Portfólio", marcas: "Marcas", calendario: "Calend
 const estado = {
   aba: "portfolio",
   videos: [], marcas: [], calendario: [], campanhas: [], visitas: [],
+  tempo: { sessoes: 0, segundos: 0 }, topVideos: [], metricasOk: false,
   marcados: new Set(),
   mes: inicioDoMes(new Date()),
   filtroTipo: "todos",
@@ -53,6 +54,13 @@ const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 const pad = n => String(n).padStart(2, "0");
 const dinheiro = v => num(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+function duracao(seg) { /* 75 vira "1 min 15 s" */
+  const s = Math.round(num(seg));
+  if (s < 60) return `${s} s`;
+  if (s < 3600) { const m = Math.floor(s / 60), r = s % 60; return r ? `${m} min ${r} s` : `${m} min`; }
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  return m ? `${h} h ${m} min` : `${h} h`;
+}
 function isoLocal(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
 function hojeISO() { return isoLocal(new Date()); }
 function inicioDoMes(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
@@ -180,8 +188,32 @@ async function carregarVisitas() {
   const desde = new Date(); desde.setHours(0, 0, 0, 0); desde.setDate(desde.getDate() - 13);
   estado.visitas = await ler("visitas", q => q.gte("data", desde.toISOString()).limit(20000));
 }
+/* Métricas de tempo e vídeos: vêm de dois resumos prontos no banco (banco-metricas.sql) */
+async function carregarMetricas() {
+  estado.metricasOk = false;
+  if (!db) return;
+  try {
+    const [t, v] = await Promise.all([
+      db.from("resumo_tempo").select("*"),
+      db.from("resumo_videos").select("*").order("vezes", { ascending: false }).order("segundos", { ascending: false }).limit(10)
+    ]);
+    if (t.error) throw t.error;
+    if (v.error) throw v.error;
+    const r = (t.data || [])[0] || {};
+    estado.tempo = { sessoes: num(r.sessoes), segundos: num(r.segundos) };
+    estado.topVideos = Array.isArray(v.data) ? v.data : [];
+    estado.metricasOk = true;
+    tirarAviso("metricas");
+  } catch (erro) {
+    estado.tempo = { sessoes: 0, segundos: 0 };
+    estado.topVideos = [];
+    aviso("metricas", tabelaNaoExiste(erro)
+      ? `<strong>Falta criar as métricas de tempo e vídeos.</strong> Rode o arquivo banco-metricas.sql no Supabase (SQL Editor). O resto do painel segue funcionando.`
+      : explicarErro("eventos", erro), "aviso");
+  }
+}
 async function carregarTudo() {
-  await Promise.all([carregarVideos(), carregarMarcas(), carregarCalendario(), carregarCampanhas(), carregarMarcados(), carregarVisitas()]);
+  await Promise.all([carregarVideos(), carregarMarcas(), carregarCalendario(), carregarCampanhas(), carregarMarcados(), carregarVisitas(), carregarMetricas()]);
 }
 
 /* Desenha uma parte com rede de proteção: se der erro, avisa e o resto continua */
@@ -327,10 +359,14 @@ function desenharPortfolio() {
   noAr.forEach(v => { if (v.nicho) porNicho.set(v.nicho, (porNicho.get(v.nicho) || 0) + 1); });
   const nichoForte = [...porNicho.entries()].sort((a, b) => b[1] - a[1])[0];
   const origens = [...porOrigem.entries()].sort((a, b) => b[1] - a[1]);
+  const tp = estado.tempo || { sessoes: 0, segundos: 0 };
+  const tempoMedio = tp.sessoes > 0 ? duracao(tp.segundos / tp.sessoes) : "Sem dados ainda";
+  const tempoSub = tp.sessoes > 0 ? `total ${duracao(tp.segundos)}, ${plural(tp.sessoes, "visita medida", "visitas medidas")}` : "";
 
   $("#numerosPortfolio").innerHTML = [
     ["Visitas em 14 dias", total14, ""],
     ["Visitas hoje", totalHoje, ""],
+    ["Tempo médio no site", tempoMedio, tempoSub],
     ["Vídeos no ar", noAr.length, ""],
     ["Nicho mais forte", nichoForte ? nomeNicho(nichoForte[0]) : "Nenhum ainda", nichoForte ? plural(nichoForte[1], "vídeo", "vídeos") : ""],
     ["De onde mais vêm", origens[0] ? origens[0][0] : "Ninguém ainda", origens[0] ? plural(origens[0][1], "visita", "visitas") : ""]
@@ -350,6 +386,7 @@ function desenharPortfolio() {
     ? origens.map(([o, n]) => `<div class="origem"><span>${esc(o)}</span><b>${n}</b><span class="trilho"><i style="width:${Math.round(n / total14 * 100)}%"></i></span></div>`).join("")
     : `<p class="vazio">Aqui vai aparecer por onde as pessoas chegaram ao seu site: Instagram, Google, WhatsApp ou direto pelo link.</p>`;
 
+  desenharTopVideos();
   desenharTabelaVideos();
 }
 
@@ -363,6 +400,32 @@ const ICONE = {
   estrela: `<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg>`,
   mais: `<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>`
 };
+
+function desenharTopVideos() {
+  const caixa = $("#topVideos");
+  const lista = (estado.topVideos || []).filter(r => r && r.video);
+  if (!lista.length) {
+    caixa.innerHTML = `<p class="vazio">${estado.metricasOk
+      ? "Ainda ninguém abriu um vídeo no site desde que a medição começou. Quando abrirem, aqui aparece o ranking dos 10 mais assistidos."
+      : "Quando as métricas estiverem ligadas, aqui aparece o ranking dos 10 vídeos mais assistidos no site."}</p>`;
+    return;
+  }
+  /* Usa o nome que está no painel; se o vídeo não estiver lá (ex.: os da Estratégia), usa o nome anotado pelo site */
+  const doPainel = new Map(estado.videos.map(v => [idYoutube(v.link), v]).filter(([id]) => id));
+  caixa.innerHTML = `<table class="tabela"><thead><tr><th>#</th><th>Vídeo</th><th>Vezes aberto</th><th>Tempo médio assistindo</th><th>Tempo total</th><th></th></tr></thead>
+  <tbody>${lista.map((r, i) => {
+    const v = doPainel.get(r.video);
+    const nome = v ? (v.titulo || "Sem título") : (String(r.titulo || "").split(",")[0] || "Vídeo");
+    const sub = v ? nomeNicho(v.nicho) : (doPainel.size ? "Estratégia" : "");
+    const vezes = num(r.vezes), seg = num(r.segundos);
+    return `<tr><td><b>${i + 1}º</b></td>
+      <td>${esc(nome)}${sub ? `<br><small class="apagado">${esc(sub)}</small>` : ""}</td>
+      <td>${vezes}</td>
+      <td>${vezes > 0 ? duracao(seg / vezes) : "-"}</td>
+      <td>${duracao(seg)}</td>
+      <td><a class="link-pequeno" href="https://youtube.com/shorts/${esc(r.video)}" target="_blank" rel="noopener">abrir</a></td></tr>`;
+  }).join("")}</tbody></table>`;
+}
 
 function desenharTabelaVideos() {
   const t = $("#tabelaVideos");
@@ -975,13 +1038,13 @@ async function testarTranca() {
   const corpo = abrirJanela("Testando a tranca...", `<p class="vazio">Entrando como uma visitante qualquer, sem login, e tentando ler cada tabela...</p>`);
   const visitante = window.bancoVisitante && window.bancoVisitante();
   if (!visitante) { corpo.innerHTML = `<p class="vazio">Não consegui carregar a conexão com o banco.</p>`; return; }
-  const tabelas = [["marcas", "Marcas"], ["calendario", "Calendário"], ["campanhas", "Campanhas"], ["marcados", "Checklist"], ["visitas", "Visitas"], ["videos", "Vídeos"]];
+  const tabelas = [["marcas", "Marcas"], ["calendario", "Calendário"], ["campanhas", "Campanhas"], ["marcados", "Checklist"], ["visitas", "Visitas"], ["eventos", "Métricas"], ["videos", "Vídeos"]];
   const linhas = [];
   let tudoCerto = true;
   for (const [t, nome] of tabelas) {
     let res;
     try { res = await visitante.from(t).select("*").limit(50); } catch (e) { res = { error: e }; }
-    const meus = t === "marcados" ? estado.marcados.size : (estado[t] || []).length;
+    const meus = t === "marcados" ? estado.marcados.size : t === "eventos" ? num(estado.tempo && estado.tempo.sessoes) + (estado.topVideos || []).length : (estado[t] || []).length;
     let txt, cls;
     if (res.error) {
       const faltou = /PGRST205|42P01/.test(res.error.code || "") || /could not find|does not exist/i.test(res.error.message || "");

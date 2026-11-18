@@ -928,13 +928,15 @@ const ytLupa = $("#ytLupa");
 let focoAntesYt = null;
 function abrirYoutube(id, nome) {
   focoAntesYt = document.activeElement;
-  $("#ytPalco").innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1&cc_load_policy=0&iv_load_policy=3&hl=pt-BR&vq=hd1080" title="${esc(nome)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  $("#ytPalco").innerHTML = `<iframe id="ytFrame" src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1&cc_load_policy=0&iv_load_policy=3&hl=pt-BR&vq=hd1080&enablejsapi=1&origin=${encodeURIComponent(location.origin)}" title="${esc(nome)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
   ytLupa.hidden = false;
   document.body.style.overflow = "hidden";
   requestAnimationFrame(() => ytLupa.classList.add("visivel"));
   $("#ytFechar").focus();
+  comecarMedirVideo(id, nome);
 }
 function fecharYoutube() {
+  terminarMedirVideo();
   $("#ytPalco").innerHTML = ""; /* tirar o player para o som parar */
   ytLupa.classList.remove("visivel");
   ytLupa.hidden = true;
@@ -1026,16 +1028,135 @@ function deOndeVeio() {
     return achado ? achado[1] : host.slice(0, 60);
   } catch (e) { return "Direto"; }
 }
+function podeContar() {
+  try {
+    if (window.JP_TESTE) return true;
+    if (location.protocol === "file:" || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return false; /* testes no computador não contam */
+    if (localStorage.getItem("jp_nao_contar")) return false; /* você mesma, depois de entrar no painel, não conta */
+  } catch (e) {}
+  return true;
+}
 async function registrarVisita() {
   try {
-    if (location.protocol === "file:" || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return; /* testes no computador não contam */
-    if (localStorage.getItem("jp_nao_contar")) return;  /* você mesma, depois de entrar no painel, não conta */
+    if (!podeContar()) return;
     if (sessionStorage.getItem("jp_visita")) return;    /* recarregar a página não conta duas vezes */
     sessionStorage.setItem("jp_visita", "1");
     if (window.banco) await window.banco.from("visitas").insert({ pagina: location.pathname.slice(0, 300), origem: deOndeVeio() });
   } catch (e) {}
 }
 document.addEventListener("DOMContentLoaded", () => { videosDoPainel(); registrarVisita(); });
+
+/* ---------- Métricas: tempo no site e vídeos assistidos ----------
+   Nada aparece na tela. Não identifica ninguém: só um código sorteado
+   por visita, para somar os tempos da mesma pessoa. */
+const sessaoId = (() => {
+  const novo = () => Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+  try {
+    let s = sessionStorage.getItem("jp_sessao");
+    if (!s) { s = novo(); sessionStorage.setItem("jp_sessao", s); }
+    return s;
+  } catch (e) { return novo(); }
+})();
+function anotar(evento) {
+  if (!podeContar() || !window.BANCO_URL || !window.BANCO_CHAVE) return;
+  try {
+    /* "keepalive" deixa o envio terminar mesmo se a pessoa estiver fechando a página */
+    fetch(window.BANCO_URL + "/rest/v1/eventos", {
+      method: "POST", keepalive: true,
+      headers: { apikey: window.BANCO_CHAVE, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(Object.assign({ sessao: sessaoId }, evento))
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+/* Tempo no site: conta só enquanto a página está na tela e a pessoa está por perto.
+   Se ficar 5 minutos sem mexer em nada (e sem vídeo tocando), o relógio para. */
+const PARADO_MS = 5 * 60 * 1000;
+let tempoDesde = document.visibilityState === "visible" ? Date.now() : 0;
+let tempoMs = 0, ultimoMovimento = Date.now();
+function pararRelogio(fim) {
+  if (!tempoDesde) return;
+  tempoMs += Math.max(0, (fim || Date.now()) - tempoDesde);
+  tempoDesde = 0;
+}
+function enviarTempo() {
+  const s = Math.floor(tempoMs / 1000);
+  if (s < 1) return;
+  tempoMs -= s * 1000;
+  anotar({ tipo: "tempo", segundos: Math.min(s, 86400) });
+}
+function mexeu() {
+  ultimoMovimento = Date.now();
+  if (!tempoDesde && document.visibilityState === "visible") tempoDesde = Date.now();
+}
+["pointerdown", "pointermove", "keydown", "scroll", "touchstart", "wheel"].forEach(ev =>
+  addEventListener(ev, mexeu, { passive: true, capture: true }));
+setInterval(() => {
+  if (videoAtual && videoAtual.desde) ultimoMovimento = Date.now(); /* assistindo vídeo conta como presente */
+  if (tempoDesde && Date.now() - ultimoMovimento > PARADO_MS) pararRelogio(ultimoMovimento + PARADO_MS);
+}, 15000);
+
+/* Vídeos: anota quando abre e quanto tempo ficou TOCANDO (pausado não conta) */
+let videoAtual = null, apiYoutube = null;
+function carregarApiYoutube() {
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  if (!apiYoutube) apiYoutube = new Promise((ok, falhou) => {
+    const antes = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => { if (typeof antes === "function") antes(); ok(); };
+    const s = document.createElement("script");
+    s.src = "https://www.youtube.com/iframe_api";
+    s.async = true;
+    s.onerror = () => { apiYoutube = null; falhou(); };
+    document.head.appendChild(s);
+  });
+  return apiYoutube;
+}
+function videoTocando(sim) {
+  const v = videoAtual;
+  if (!v) return;
+  if (sim && !v.desde) v.desde = Date.now();
+  if (!sim && v.desde) { v.ms += Date.now() - v.desde; v.desde = 0; }
+}
+function enviarVideo() {
+  const v = videoAtual;
+  if (!v) return;
+  if (v.desde) { v.ms += Date.now() - v.desde; v.desde = Date.now(); }
+  const s = Math.floor(v.ms / 1000);
+  if (s < 1) return;
+  v.ms -= s * 1000;
+  anotar({ tipo: "assistiu", video: v.id, titulo: v.nome, segundos: Math.min(s, 86400) });
+}
+function comecarMedirVideo(id, nome) {
+  terminarMedirVideo();
+  const v = videoAtual = { id: String(id).slice(0, 20), nome: String(nome || "").slice(0, 200), ms: 0, desde: 0 };
+  anotar({ tipo: "abriu", video: v.id, titulo: v.nome });
+  carregarApiYoutube().then(() => {
+    const frame = document.getElementById("ytFrame");
+    if (videoAtual !== v || !frame) return; /* a pessoa já fechou */
+    new YT.Player(frame, { events: {
+      onReady: e => { try { if (videoAtual === v && e.target.getPlayerState() === 1) videoTocando(true); } catch (x) {} },
+      onStateChange: e => { if (videoAtual === v) videoTocando(e.data === 1); }
+    } });
+  }).catch(() => {});
+}
+function terminarMedirVideo() {
+  if (!videoAtual) return;
+  videoTocando(false);
+  enviarVideo();
+  videoAtual = null;
+}
+
+/* Quando a pessoa sai da aba, minimiza ou fecha: manda o que foi medido até ali */
+function guardarTudo() {
+  pararRelogio();
+  enviarTempo();
+  enviarVideo();
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") guardarTudo();
+  else { ultimoMovimento = Date.now(); if (!tempoDesde) tempoDesde = Date.now(); }
+});
+addEventListener("pagehide", guardarTudo);
 
 /* Serviços */
 $("#servicosGrid").innerHTML = servicos.map((s, i) => `

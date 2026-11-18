@@ -244,3 +244,9 @@ select 'Exemplo: campanha de lançamento', 'Marca Exemplo', 'Conteúdo', 'Briefi
 where not exists (select 1 from public.campanhas);
 
 -- Pronto! Se apareceu "Success. No rows returned", deu tudo certo.
+
+
+-- ---------------------------------------------------------------------
+-- 7. MÉTRICAS (tempo no site e vídeos assistidos)
+-- Ficam no arquivo banco-metricas.sql. Rode ele também, uma vez.
+-- ---------------------------------------------------------------------
