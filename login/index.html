@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Entrar | Painel Jessica Passos</title>
+<meta name="theme-color" content="#f1e8dc">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --creme:#f1e8dc; --creme-2:#e6d6c0; --papel:#fbf8f3; --tinta:#2e2119; --tinta-suave:#5c4838;
+  --cor:#8a5a2b; --cor-escura:#6b4420; --camurca:#b98a5e; --linha:rgba(46,33,25,.13);
+  --erro:#a63d2a; --erro-fundo:#f7e3dc; --ok:#4f6b3a; --ok-fundo:#e6eedb;
+  --raio:10px; --raio-g:16px;
+  --sombra:0 2px 4px rgba(46,33,25,.05),0 24px 50px -20px rgba(46,33,25,.25);
+  --fonte:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--creme);color:var(--tinta);font:14px/1.5 var(--fonte);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.cartao{width:100%;max-width:380px;background:var(--papel);border-radius:var(--raio-g);box-shadow:var(--sombra);padding:32px 28px}
+.marca{font-size:.78rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-suave);margin:0 0 6px}
+h1{font-size:1.25rem;font-weight:600;margin:0 0 22px}
+label{display:block;font-size:.8rem;font-weight:600;margin:0 0 6px}
+input{width:100%;font:inherit;color:inherit;background:#fff;border:1px solid var(--linha);border-radius:var(--raio);padding:11px 12px;margin-bottom:16px}
+input:focus{outline:2px solid var(--cor);outline-offset:1px;border-color:transparent}
+.botao{width:100%;font:600 .9rem/1 var(--fonte);background:var(--cor);color:#fff;border:0;border-radius:var(--raio);padding:13px;cursor:pointer;transition:background .2s}
+.botao:hover{background:var(--cor-escura)}
+.botao:disabled{opacity:.6;cursor:wait}
+.link{background:none;border:0;padding:0;font:inherit;font-size:.82rem;color:var(--cor);text-decoration:underline;cursor:pointer;margin-top:16px}
+.faixa{border-radius:var(--raio);padding:10px 12px;font-size:.84rem;margin-bottom:16px}
+.faixa.erro{background:var(--erro-fundo);color:var(--erro)}
+.faixa.ok{background:var(--ok-fundo);color:var(--ok)}
+.dica{font-size:.82rem;color:var(--tinta-suave);margin:-6px 0 18px}
+.voltar{display:block;text-align:center;font-size:.8rem;color:var(--tinta-suave);margin-top:22px}
+:focus-visible{outline:2px solid var(--cor);outline-offset:2px}
+</style>
+</head>
+<body>
+<main class="cartao">
+  <p class="marca">Jessica Passos</p>
+
+  <!-- 1. ENTRAR -->
+  <section id="telaEntrar">
+    <h1>Entrar no painel</h1>
+    <div class="faixa erro" id="faixaEntrar" role="alert" hidden></div>
+    <form id="formEntrar" novalidate>
+      <label for="email">E-mail</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" autocomplete="current-password" required>
+      <button class="botao" type="submit" id="botaoEntrar">Entrar</button>
+    </form>
+    <button class="link" type="button" id="irEsqueci">Esqueci minha senha</button>
+  </section>
+
+  <!-- 2. ESQUECI MINHA SENHA -->
+  <section id="telaEsqueci" hidden>
+    <h1>Recuperar a senha</h1>
+    <p class="dica">Digite o seu e-mail. Vou mandar um link para você criar uma senha nova.</p>
+    <div class="faixa" id="faixaEsqueci" role="alert" hidden></div>
+    <form id="formEsqueci" novalidate>
+      <label for="emailEsqueci">E-mail</label>
+      <input id="emailEsqueci" type="email" autocomplete="username" required>
+      <button class="botao" type="submit" id="botaoEsqueci">Enviar link</button>
+    </form>
+    <button class="link" type="button" id="voltarEntrar">Voltar para o login</button>
+  </section>
+
+  <!-- 3. SENHA NOVA (quando você chega pelo link do e-mail) -->
+  <section id="telaNova" hidden>
+    <h1>Criar senha nova</h1>
+    <div class="faixa" id="faixaNova" role="alert" hidden></div>
+    <form id="formNova" novalidate>
+      <label for="senhaNova">Senha nova</label>
+      <input id="senhaNova" type="password" autocomplete="new-password" minlength="6" required>
+      <p class="dica">Pelo menos 6 caracteres.</p>
+      <button class="botao" type="submit" id="botaoNova">Salvar senha</button>
+    </form>
+  </section>
+
+  <a class="voltar" href="../">Ver o portfólio</a>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script src="../js/banco.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const db = window.banco;
+const PAINEL = "../admin/";
+
+/* Mostra uma faixa de aviso (erro em vermelho, ok em verde) */
+function faixa(id, texto, tipo) {
+  const f = $(id);
+  f.textContent = texto;
+  f.className = "faixa " + (tipo || "erro");
+  f.hidden = !texto;
+}
+function tela(qual) {
+  ["#telaEntrar", "#telaEsqueci", "#telaNova"].forEach(t => { $(t).hidden = t !== qual; });
+}
+
+/* Traduz os erros do Supabase (que vêm em inglês) para português */
+function traduzir(erro) {
+  const m = String((erro && (erro.message || erro.code)) || "").toLowerCase();
+  if (m.includes("invalid login") || m.includes("invalid_credentials") || m.includes("invalid credentials")) return "E-mail ou senha incorretos";
+  if (m.includes("email not confirmed")) return "Esse e-mail ainda não foi confirmado. Confira a sua caixa de entrada.";
+  if (m.includes("rate") || m.includes("too many")) return "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.";
+  if (m.includes("password should be") || m.includes("weak")) return "A senha precisa ter pelo menos 6 caracteres.";
+  if (m.includes("same password") || m.includes("different from the old")) return "A senha nova precisa ser diferente da antiga.";
+  if (m.includes("fetch") || m.includes("network")) return "Não consegui falar com o servidor. Confira a internet e tente de novo.";
+  return "Não deu certo. Tente de novo em instantes.";
+}
+
+if (!db) {
+  faixa("#faixaEntrar", "Não consegui carregar a conexão com o banco. Confira a internet e recarregue a página.");
+  $("#botaoEntrar").disabled = true;
+} else {
+  /* Chegou pelo link de "esqueci minha senha"? Então mostra a tela de senha nova. */
+  let recuperando = /type=recovery/.test(location.hash);
+  if (recuperando) tela("#telaNova");
+
+  db.auth.onAuthStateChange((evento, sessao) => {
+    if (evento === "PASSWORD_RECOVERY") { recuperando = true; tela("#telaNova"); return; }
+    /* Já tem sessão aberta? Vai direto para o painel. */
+    if (sessao && !recuperando && (evento === "INITIAL_SESSION" || evento === "SIGNED_IN")) location.replace(PAINEL);
+  });
+
+  $("#formEntrar").addEventListener("submit", async e => {
+    e.preventDefault();
+    const email = $("#email").value.trim(), senha = $("#senha").value;
+    if (!email || !senha) { faixa("#faixaEntrar", "Preencha o e-mail e a senha."); return; }
+    faixa("#faixaEntrar", "");
+    const b = $("#botaoEntrar"); b.disabled = true; b.textContent = "Entrando...";
+    try {
+      const { error } = await db.auth.signInWithPassword({ email, password: senha });
+      if (error) throw error;
+      location.replace(PAINEL);
+    } catch (erro) {
+      faixa("#faixaEntrar", traduzir(erro));
+      b.disabled = false; b.textContent = "Entrar";
+    }
+  });
+
+  $("#irEsqueci").addEventListener("click", () => { $("#emailEsqueci").value = $("#email").value; faixa("#faixaEsqueci", ""); tela("#telaEsqueci"); $("#emailEsqueci").focus(); });
+  $("#voltarEntrar").addEventListener("click", () => { tela("#telaEntrar"); $("#email").focus(); });
+
+  $("#formEsqueci").addEventListener("submit", async e => {
+    e.preventDefault();
+    const email = $("#emailEsqueci").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { faixa("#faixaEsqueci", "Digite um e-mail válido."); return; }
+    const b = $("#botaoEsqueci"); b.disabled = true; b.textContent = "Enviando...";
+    try {
+      const volta = location.href.split("#")[0].split("?")[0];
+      const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: volta });
+      if (error) throw error;
+      faixa("#faixaEsqueci", "Pronto! Se esse e-mail tiver cadastro, o link chega em alguns minutos. Confira também o spam.", "ok");
+    } catch (erro) {
+      faixa("#faixaEsqueci", traduzir(erro));
+    }
+    b.disabled = false; b.textContent = "Enviar link";
+  });
+
+  $("#formNova").addEventListener("submit", async e => {
+    e.preventDefault();
+    const senha = $("#senhaNova").value;
+    if (senha.length < 6) { faixa("#faixaNova", "A senha precisa ter pelo menos 6 caracteres."); return; }
+    const b = $("#botaoNova"); b.disabled = true; b.textContent = "Salvando...";
+    try {
+      const { error } = await db.auth.updateUser({ password: senha });
+      if (error) throw error;
+      faixa("#faixaNova", "Senha nova salva! Abrindo o painel...", "ok");
+      setTimeout(() => location.replace(PAINEL), 1200);
+    } catch (erro) {
+      faixa("#faixaNova", traduzir(erro));
+      b.disabled = false; b.textContent = "Salvar senha";
+    }
+  });
+}
+</script>
+</body>
+</html>

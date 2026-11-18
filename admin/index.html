@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="trancado">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel | Jessica Passos</title>
+<meta name="theme-color" content="#f1e8dc">
+<!-- A página fica invisível até conferir o login -->
+<style>.trancado body{visibility:hidden}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ===== MENU LATERAL ===== -->
+<aside class="menu" id="menu" aria-label="Menu do painel">
+  <div class="menu-topo">
+    <span class="logo">Jessica <em>Passos</em></span>
+    <span class="logo-sub">painel</span>
+  </div>
+  <nav class="menu-nav">
+    <p class="menu-grupo">meu site</p>
+    <button type="button" class="menu-item" data-aba="portfolio">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 21h8"/></svg>Portfólio</button>
+    <button type="button" class="menu-item" data-aba="marcas">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></svg>Marcas</button>
+    <p class="menu-grupo">minha rotina</p>
+    <button type="button" class="menu-item" data-aba="calendario">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendário</button>
+    <button type="button" class="menu-item" data-aba="campanhas">
+      <svg viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>Campanhas</button>
+    <button type="button" class="menu-item" data-aba="checklist">
+      <svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/></svg>Checklist</button>
+  </nav>
+  <div class="menu-pe">
+    <span class="menu-email" id="meuEmail"></span>
+    <div class="menu-pe-botoes">
+      <button type="button" class="link-pequeno" id="testarTranca">Testar a tranca</button>
+      <a class="link-pequeno" href="../" target="_blank" rel="noopener">Ver o site</a>
+    </div>
+    <button type="button" class="botao contorno" id="sair">
+      <svg viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>Sair</button>
+  </div>
+</aside>
+<div class="menu-sombra" id="menuSombra" hidden></div>
+
+<!-- ===== CONTEÚDO ===== -->
+<div class="conteudo">
+  <header class="topo">
+    <button type="button" class="abrir-menu" id="abrirMenu" aria-label="Abrir menu" aria-controls="menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <h1 id="tituloAba">Portfólio</h1>
+  </header>
+
+  <!-- Avisos (ex: tabela que falta no banco) -->
+  <div class="avisos" id="avisos" aria-live="polite"></div>
+
+  <!-- 1. PORTFÓLIO -->
+  <section class="aba" id="aba-portfolio" hidden>
+    <div class="faixa-numeros" id="numerosPortfolio"></div>
+    <div class="duas-colunas">
+      <div class="cartao">
+        <h2>Visitas nos últimos 14 dias</h2>
+        <div id="grafico"></div>
+      </div>
+      <div class="cartao">
+        <h2>De onde as pessoas chegam</h2>
+        <div id="origens"></div>
+      </div>
+    </div>
+    <div class="cartao">
+      <div class="cartao-topo">
+        <h2>Meus vídeos</h2>
+        <button type="button" class="botao" id="novoVideo"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adicionar vídeo</button>
+      </div>
+      <p class="dica">Arraste pela alcinha para mudar a ordem no site. O olhinho mostra ou esconde o vídeo.</p>
+      <div class="tabela-rolagem"><table class="tabela" id="tabelaVideos"></table></div>
+    </div>
+  </section>
+
+  <!-- 2. MARCAS -->
+  <section class="aba" id="aba-marcas" hidden>
+    <div class="barra">
+      <input type="search" class="campo-busca" id="buscaMarcas" placeholder="Buscar por nome, @ ou e-mail" aria-label="Buscar marcas">
+      <select id="filtroSituacao" aria-label="Filtrar por situação">
+        <option value="">Todas as situações</option>
+        <option value="lead">Lead</option>
+        <option value="conversando">Conversando</option>
+        <option value="cliente">Cliente</option>
+        <option value="parada">Parada</option>
+      </select>
+      <span class="barra-espaco"></span>
+      <button type="button" class="botao contorno" id="baixarMarcas"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Baixar</button>
+      <button type="button" class="botao" id="novaMarca"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adicionar marca</button>
+    </div>
+    <div class="cartao sem-respiro">
+      <div class="tabela-rolagem"><table class="tabela clicavel" id="tabelaMarcas"></table></div>
+    </div>
+  </section>
+
+  <!-- 3. CALENDÁRIO -->
+  <section class="aba" id="aba-calendario" hidden>
+    <div class="barra">
+      <button type="button" class="botao-icone" id="mesAnterior" aria-label="Mês anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <strong class="mes-nome" id="mesNome"></strong>
+      <button type="button" class="botao-icone" id="mesSeguinte" aria-label="Próximo mês"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button type="button" class="botao contorno" id="esteMes">Este mês</button>
+      <span class="barra-espaco"></span>
+      <div class="chips" id="filtroTipo" role="group" aria-label="Filtrar por tipo"></div>
+      <button type="button" class="botao" id="novoItem"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button>
+    </div>
+    <div class="cartao sem-respiro">
+      <div class="calendario" id="calendario"></div>
+    </div>
+    <div class="cartao">
+      <h2>Ficou pra trás</h2>
+      <div id="atrasados"></div>
+    </div>
+  </section>
+
+  <!-- 4. CAMPANHAS -->
+  <section class="aba" id="aba-campanhas" hidden>
+    <div class="faixa-numeros" id="numerosCampanhas"></div>
+    <div class="barra">
+      <div class="chips" id="filtroCampanhas" role="group" aria-label="Filtrar campanhas"></div>
+      <input type="search" class="campo-busca" id="buscaCampanhas" placeholder="Buscar campanha ou cliente" aria-label="Buscar campanhas">
+      <span class="barra-espaco"></span>
+      <button type="button" class="botao contorno" id="baixarCampanhas"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Baixar</button>
+      <button type="button" class="botao" id="novaCampanha"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adicionar campanha</button>
+    </div>
+    <div class="cartao sem-respiro">
+      <div class="tabela-rolagem"><table class="tabela clicavel" id="tabelaCampanhas"></table></div>
+    </div>
+  </section>
+
+  <!-- 5. CHECKLIST -->
+  <section class="aba" id="aba-checklist" hidden>
+    <div class="subabas" id="subabas" role="tablist" aria-label="Partes do checklist"></div>
+    <div id="conteudoChecklist"></div>
+  </section>
+</div>
+
+<!-- Janela para formulários e confirmações -->
+<dialog class="janela" id="janela" aria-labelledby="janelaTitulo">
+  <div class="janela-topo">
+    <h2 id="janelaTitulo"></h2>
+    <button type="button" class="botao-icone" id="janelaFechar" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div id="janelaCorpo"></div>
+</dialog>
+
+<div class="aviso-rapido" id="avisoRapido" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script src="../js/banco.js"></script>
+<script src="../js/biblioteca.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

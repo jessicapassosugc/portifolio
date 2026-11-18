@@ -9,6 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<!-- Conexão com o banco (vídeos do painel, formulário e visitas). "defer" não atrasa a página. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" defer></script>
+<script src="js/banco.js" defer></script>
 <style>
 /* =========================================================
    PALETA E TOKENS (troque aqui para mudar o visual todo)
@@ -580,8 +583,7 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
     </div>
 
     <div class="form-card reveal d2">
-      <!-- Este formulário mostra a confirmação na tela, sem enviar para servidor.
-           Para receber as mensagens de verdade, use um serviço como Formspree e coloque a URL dele no atributo action. -->
+      <!-- Cada mensagem enviada aqui entra no painel, em Marcas, como "Lead". -->
       <form id="formContato" novalidate>
         <div class="campo">
           <label for="cNome">Seu nome</label>
@@ -652,7 +654,7 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
     <div id="modalConteudo">
       <span class="rotulo">Presente para marcas</span>
       <h2 id="modalTitulo">Quer meu <em>mídia kit</em> completo?</h2>
-      <!-- Este formulário só mostra a confirmação. Para receber os contatos, ligue a um serviço como Formspree. -->
+      <!-- Quem pede o mídia kit entra no painel, em Marcas, como "Lead". -->
       <form id="formKit" novalidate>
         <p>Valores, formatos e cases reunidos em um PDF. Deixa seu contato que eu te envio.</p>
         <div class="campo">
@@ -734,7 +736,9 @@ const nichos = [
    capa: imagem que aparece antes do play (ex.: "fitness-1.jpg"). Opcional.
    link: se preferir, cole o link do Reels, TikTok ou Drive. Usado quando "video" estiver vazio.
    youtube: link do YouTube ou YouTube Shorts. O vídeo toca dentro do próprio site. */
-const trabalhos = [
+/* Esta lista é a reserva: o site passa a mostrar os vídeos cadastrados no painel (tabela "videos").
+   Ela só aparece se o banco não responder. */
+let trabalhos = [
   { nicho: "sensorial",   titulo: "Vídeo 01", marca: "Marca", youtube: "https://youtube.com/shorts/BuXYTkAcTx8", video: "", capa: "", link: "" },
   { nicho: "sensorial",   titulo: "Vídeo 02", marca: "Marca", youtube: "https://youtube.com/shorts/09SJ9cvk9sA", video: "", capa: "", link: "" },
   { nicho: "sensorial",   titulo: "Vídeo 03", marca: "Marca", youtube: "https://youtube.com/shorts/bYbx7PSaAws", video: "", capa: "", link: "" },
@@ -901,10 +905,14 @@ lupa.addEventListener("touchend", e => {
 
 /* Trabalhos e filtros */
 const nomeNicho = id => (nichos.find(n => n.id === id) || {}).nome || id;
-$("#filtros").innerHTML = nichos.map((n, i) => {
-  const qtd = n.id === "todos" ? trabalhos.length : trabalhos.filter(t => t.nicho === n.id).length;
-  return `<button type="button" class="filtro" data-nicho="${n.id}" aria-pressed="${i === 0}">${esc(n.nome)}<span class="qtd">${qtd}</span></button>`;
-}).join("");
+let nichoAtual = nichos[0].id;
+function desenharFiltros() {
+  $("#filtros").innerHTML = nichos.map(n => {
+    const qtd = n.id === "todos" ? trabalhos.length : trabalhos.filter(t => t.nicho === n.id).length;
+    return `<button type="button" class="filtro" data-nicho="${n.id}" aria-pressed="${n.id === nichoAtual}">${esc(n.nome)}<span class="qtd">${qtd}</span></button>`;
+  }).join("");
+}
+desenharFiltros();
 
 /* YouTube: mostra a capa do vídeo e só carrega o player quando a pessoa clica (a página fica leve) */
 function idYoutube(url) {
@@ -973,9 +981,61 @@ $("#filtros").addEventListener("click", e => {
   const b = e.target.closest(".filtro");
   if (!b) return;
   document.querySelectorAll(".filtro").forEach(f => f.setAttribute("aria-pressed", f === b));
-  desenharGaleria(b.dataset.nicho);
+  nichoAtual = b.dataset.nicho;
+  desenharGaleria(nichoAtual);
 });
-desenharGaleria(nichos[0].id);
+desenharGaleria(nichoAtual);
+
+/* =========================================================
+   LIGAÇÃO COM O PAINEL (banco de dados)
+   ========================================================= */
+/* Os vídeos vêm do painel. Quando você edita lá, o site muda sozinho. */
+async function videosDoPainel() {
+  const db = window.banco;
+  if (!db) return;
+  try {
+    const { data, error } = await db.from("videos").select("*").eq("visivel", true);
+    if (error || !Array.isArray(data)) return; /* sem resposta: fica a lista reserva */
+    data.sort((a, b) => (Number(a.ordem) || 0) - (Number(b.ordem) || 0) || (Number(a.id) || 0) - (Number(b.id) || 0));
+    trabalhos = data.map(v => {
+      const link = String(v.link || "");
+      const ehArquivo = /\.(mp4|webm|mov)(\?|$)/i.test(link);
+      return {
+        nicho: v.nicho || "", titulo: v.titulo || "",
+        marca: [v.marca, v.destaque].filter(Boolean).join(" · "),
+        youtube: idYoutube(link) ? link : "", video: ehArquivo ? link : "",
+        capa: "", link: !idYoutube(link) && !ehArquivo ? link : ""
+      };
+    });
+    desenharFiltros();
+    desenharGaleria(nichoAtual);
+  } catch (e) { /* sem banco, o site segue com a lista reserva */ }
+}
+
+/* Registra a visita: data, página e de onde a pessoa veio. Sem serviço de fora e sem pedir nada. */
+function deOndeVeio() {
+  try {
+    const utm = new URLSearchParams(location.search).get("utm_source");
+    if (utm) return utm.slice(0, 60);
+    if (!document.referrer) return "Direto";
+    const host = new URL(document.referrer).hostname.replace(/^www\./, "");
+    if (host === location.hostname) return "Direto";
+    const conhecidos = [["instagram", "Instagram"], ["facebook", "Facebook"], ["fb.", "Facebook"], ["google", "Google"], ["bing", "Bing"],
+      ["whatsapp", "WhatsApp"], ["wa.me", "WhatsApp"], ["tiktok", "TikTok"], ["youtube", "YouTube"], ["linkedin", "LinkedIn"], ["t.co", "X (Twitter)"], ["twitter", "X (Twitter)"], ["pinterest", "Pinterest"]];
+    const achado = conhecidos.find(([k]) => host.includes(k));
+    return achado ? achado[1] : host.slice(0, 60);
+  } catch (e) { return "Direto"; }
+}
+async function registrarVisita() {
+  try {
+    if (location.protocol === "file:" || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return; /* testes no computador não contam */
+    if (localStorage.getItem("jp_nao_contar")) return;  /* você mesma, depois de entrar no painel, não conta */
+    if (sessionStorage.getItem("jp_visita")) return;    /* recarregar a página não conta duas vezes */
+    sessionStorage.setItem("jp_visita", "1");
+    if (window.banco) await window.banco.from("visitas").insert({ pagina: location.pathname.slice(0, 300), origem: deOndeVeio() });
+  } catch (e) {}
+}
+document.addEventListener("DOMContentLoaded", () => { videosDoPainel(); registrarVisita(); });
 
 /* Serviços */
 $("#servicosGrid").innerHTML = servicos.map((s, i) => `
@@ -1078,7 +1138,7 @@ if ("IntersectionObserver" in window) {
    FORMULÁRIO DE CONTATO
    ========================================================= */
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-$("#formContato").addEventListener("submit", e => {
+$("#formContato").addEventListener("submit", async e => {
   e.preventDefault();
   const f = e.target;
   const nome = f.nome.value.trim(), email = f.email.value.trim(), msg = f.mensagem.value.trim();
@@ -1094,10 +1154,31 @@ $("#formContato").addEventListener("submit", e => {
     if (txt && !primeiro) primeiro = $("#" + id);
   });
   if (primeiro) { primeiro.focus(); return; }
+  /* Manda o contato para a sua base de Marcas no painel, como "Lead" */
+  const botao = f.querySelector("[type=submit]");
+  botao.disabled = true; botao.textContent = "Enviando...";
+  const ok = await novoLead({ nome, email, obs: "Mensagem pelo site: " + msg });
+  botao.disabled = false; botao.textContent = "Enviar mensagem";
+  if (!ok) {
+    $("#cMsgErro").textContent = "Não consegui enviar agora. Tenta de novo em instantes ou me chama no WhatsApp ou no e-mail aqui ao lado.";
+    return;
+  }
   $("#confNome").textContent = nome.split(" ")[0];
   f.hidden = true;
   const c = $("#confirmacao"); c.hidden = false; c.focus();
 });
+/* Grava um novo contato na tabela "marcas" do painel */
+async function novoLead({ nome, email, obs }) {
+  const db = window.banco;
+  if (!db) return false;
+  try {
+    const { error } = await db.from("marcas").insert({
+      nome: nome.slice(0, 200), email: email.slice(0, 200), obs: obs.slice(0, 3000),
+      situacao: "lead", ultimo_contato: new Date().toISOString().slice(0, 10)
+    });
+    return !error;
+  } catch (e) { return false; }
+}
 
 /* =========================================================
    CARD DE CAPTURA: aparece após 7s, uma vez por visita
@@ -1135,6 +1216,7 @@ $("#formKit").addEventListener("submit", e => {
   e.preventDefault();
   const nome = $("#kNome").value.trim(), email = $("#kEmail").value.trim();
   if (!nome || !emailOk(email)) { $("#kErro").textContent = "Preenche seu nome e um e-mail válido."; (nome ? $("#kEmail") : $("#kNome")).focus(); return; }
+  novoLead({ nome, email, obs: "Pediu o mídia kit pelo site." }); /* entra na sua base de Marcas como Lead */
   $("#modalConteudo").innerHTML = `
     <span class="rotulo">Tudo certo</span>
     <h2 id="modalTitulo">Obrigada, <em>${esc(nome.split(" ")[0])}</em>!</h2>
