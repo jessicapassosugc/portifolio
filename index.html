@@ -700,22 +700,22 @@ const casePassos = [
   { titulo: "Oferta",     texto: "Pega o problema mais comum e mostra que a solução não é gastar mais, é o produto oferecido.", youtube: "https://youtube.com/shorts/pgzU-hQ5-O8", video: "", capa: "", link: "", degrade: "g3" }
 ];
 
-/* Fotos (12) que aparecem antes dos vídeos por nicho
-   imagem: nome do arquivo da foto (ex.: "foto-1.jpg"), na mesma pasta do index. Deixe "" para usar o espaço reservado.
-   descricao: o que aparece na foto (usado na legenda ampliada e para leitores de tela) */
+/* Fotos que aparecem antes dos vídeos por nicho
+   imagem: arquivo da foto na pasta "fotos"
+   descricao: o que aparece na foto (legenda da foto ampliada e leitores de tela)
+   foco (opcional): qual parte da foto aparece no quadradinho, ex.: "center 80%" mostra mais a parte de baixo */
 const fotos = [
-  { imagem: "", descricao: "Foto 01" },
-  { imagem: "", descricao: "Foto 02" },
-  { imagem: "", descricao: "Foto 03" },
-  { imagem: "", descricao: "Foto 04" },
-  { imagem: "", descricao: "Foto 05" },
-  { imagem: "", descricao: "Foto 06" },
-  { imagem: "", descricao: "Foto 07" },
-  { imagem: "", descricao: "Foto 08" },
-  { imagem: "", descricao: "Foto 09" },
-  { imagem: "", descricao: "Foto 10" },
-  { imagem: "", descricao: "Foto 11" },
-  { imagem: "", descricao: "Foto 12" }
+  { imagem: "fotos/foto-01.jpg", descricao: "Finalizador All in One contra a luz dourada da cortina" },
+  { imagem: "fotos/foto-02.jpg", descricao: "Batom líquido matte sendo aplicado nos lábios" },
+  { imagem: "fotos/foto-03.jpg", descricao: "Scarpins prateados refletidos no espelho" },
+  { imagem: "fotos/foto-04.jpg", descricao: "Hidratante iluminador facial brilhando ao sol" },
+  { imagem: "fotos/foto-05.jpg", descricao: "Colar e pulseira com pedras azuis sobre a madeira" },
+  { imagem: "fotos/foto-06.jpg", descricao: "Look com casaco de pelúcia marrom e jeans claro" },
+  { imagem: "fotos/foto-07.jpg", descricao: "Saída de praia de crochê branca no jardim" },
+  { imagem: "fotos/foto-08.jpg", descricao: "Tênis rosa com conjunto fitness" },
+  { imagem: "fotos/foto-09.jpg", descricao: "Conjunto fitness roxo contra o muro ao sol", foco: "center 75%" },
+  { imagem: "fotos/foto-10.jpg", descricao: "Protetor solar facial aplicado no rosto" },
+  { imagem: "fotos/foto-11.jpg", descricao: "Perfume borrifado no pescoço" }
 ];
 
 /* Nichos, na ordem dos botões. O primeiro abre selecionado. "todos" mostra tudo. */
@@ -847,7 +847,7 @@ $("#caseGrid").innerHTML = casePassos.map((p, i) => {
 const setaFoto = `<span class="foto-seta" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg></span>`;
 $("#fotosGrid").innerHTML = fotos.map((f, i) => `
   <button type="button" class="foto ${degrades[i % 4]}" data-foto="${i}" aria-label="Ver maior: ${esc(f.descricao)}">
-    ${f.imagem ? `<img src="${esc(f.imagem)}" alt="${esc(f.descricao)}" loading="lazy">` : `<span class="legenda">Foto ${pad(i + 1)} · 4:5</span>`}
+    ${f.imagem ? `<img src="${esc(f.imagem)}" alt="${esc(f.descricao)}" loading="lazy"${f.foco ? ` style="object-position:${esc(f.foco)}"` : ""}>` : `<span class="legenda">Foto ${pad(i + 1)} · 4:5</span>`}
     ${setaFoto}
   </button>`).join("");
 
