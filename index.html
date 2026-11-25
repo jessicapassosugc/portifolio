@@ -39,7 +39,7 @@
   --mono:"Courier Prime","Courier New",Courier,monospace;
   --larg:1200px;
   --gutter:clamp(18px,4vw,40px);
-  --header:72px;
+  --header:118px;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -79,16 +79,30 @@ section{scroll-margin-top:var(--header)}
 /* =========================================================
    MENU FIXO
    ========================================================= */
-.topo{position:fixed;inset:0 0 auto 0;z-index:100;height:var(--header);transition:background .3s,box-shadow .3s,backdrop-filter .3s}
-.topo.rolou{background:rgba(241,232,220,.88);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);box-shadow:0 1px 0 var(--linha)}
-.topo .container{height:100%;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.marca-nome{font-family:var(--serif);font-size:1.4rem;text-decoration:none;letter-spacing:-.01em;white-space:nowrap}
+/* O menu fica sempre visível, com fundo bege, em duas linhas: nome + links + botão, e os nichos embaixo */
+.topo{position:fixed;inset:0 0 auto 0;z-index:100;height:var(--header);background:rgba(241,232,220,.95);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);box-shadow:0 1px 0 var(--linha);transition:box-shadow .3s}
+.topo.rolou{box-shadow:0 1px 0 var(--linha),0 10px 24px -18px rgba(46,33,25,.35)}
+.topo-linha{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.marca-nome{display:flex;flex-direction:column;text-decoration:none;white-space:nowrap;line-height:1}
+.marca-nome span{font-family:var(--serif);font-size:1.4rem;letter-spacing:-.01em}
 .marca-nome em{color:var(--azul)}
+.marca-nome small{font-size:.62rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--tinta-suave);margin-top:6px}
+.nav{display:flex;align-items:center;gap:clamp(18px,2.6vw,36px)}
+.nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--tinta);color:var(--creme);text-decoration:none;font-size:.85rem;font-weight:600;padding:12px 20px;border-radius:999px;white-space:nowrap;transition:background .25s,transform .25s}
+.nav-cta:hover{background:var(--azul);transform:translateY(-1px)}
+.nav-cta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-nichos{display:none}
+.topo-nichos{height:46px;display:flex;align-items:center;gap:clamp(18px,3vw,40px);border-top:1px solid var(--linha)}
+.explore{font-size:.62rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--laranja)}
+.nichos-links{flex:1;display:flex;justify-content:space-between;gap:clamp(14px,2vw,28px)}
+.nichos-links a{text-decoration:none;font-size:.84rem;font-weight:500;color:var(--tinta);white-space:nowrap;padding:4px 0;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+.nichos-links a:hover,.nichos-links a.ativo{color:var(--azul);border-color:var(--azul)}
+#filtros{scroll-margin-top:calc(var(--header) + 24px)}
 .nav ul{list-style:none;margin:0;padding:0;display:flex;gap:clamp(16px,2.4vw,34px)}
-.nav a{text-decoration:none;font-size:.9rem;font-weight:500;color:var(--tinta-suave);position:relative;padding:6px 0;transition:color .2s}
-.nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--azul);transform:scaleX(0);transform-origin:left;transition:transform .3s}
-.nav a:hover,.nav a.ativo{color:var(--tinta)}
-.nav a:hover::after,.nav a.ativo::after{transform:scaleX(1)}
+.nav ul a{text-decoration:none;font-size:.9rem;font-weight:500;color:var(--tinta-suave);position:relative;padding:6px 0;transition:color .2s}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--azul);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.nav ul a:hover,.nav ul a.ativo{color:var(--tinta)}
+.nav ul a:hover::after,.nav ul a.ativo::after{transform:scaleX(1)}
 .sanduiche{display:none;width:44px;height:44px;border:1px solid var(--linha);border-radius:50%;background:var(--papel);cursor:pointer;position:relative}
 .sanduiche span{position:absolute;left:13px;right:13px;height:1.5px;background:var(--tinta);transition:transform .3s,opacity .3s}
 .sanduiche span:nth-child(1){top:16px}.sanduiche span:nth-child(2){top:21px}.sanduiche span:nth-child(3){top:26px}
@@ -96,13 +110,20 @@ section{scroll-margin-top:var(--header)}
 .sanduiche[aria-expanded="true"] span:nth-child(2){opacity:0}
 .sanduiche[aria-expanded="true"] span:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
 
-@media (max-width:900px){
+@media (max-width:1080px){
+  :root{--header:72px}
+  .topo-nichos{display:none}
+  .topo-linha{height:100%}
   .sanduiche{display:block}
-  .nav{position:fixed;top:var(--header);left:0;right:0;background:var(--creme);border-bottom:1px solid var(--linha);box-shadow:var(--sombra);padding:12px var(--gutter) 28px;transform:translateY(-8px);opacity:0;visibility:hidden;transition:opacity .25s,transform .25s,visibility .25s}
+  .nav{display:block;position:fixed;top:var(--header);left:0;right:0;max-height:calc(100vh - var(--header));overflow-y:auto;background:var(--creme);border-bottom:1px solid var(--linha);box-shadow:var(--sombra);padding:12px var(--gutter) 28px;transform:translateY(-8px);opacity:0;visibility:hidden;transition:opacity .25s,transform .25s,visibility .25s}
+  .nav-nichos{display:block;margin-top:22px}
+  .nav-nichos .nichos-links{flex-wrap:wrap;justify-content:flex-start;gap:8px;margin-top:10px}
+  .nav-nichos .nichos-links a{border:1px solid var(--linha);border-radius:999px;padding:8px 14px;background:var(--papel)}
+  .nav-cta{display:flex;justify-content:center;margin-top:24px;padding:16px 20px;font-size:.95rem}
   .nav.aberto{opacity:1;transform:none;visibility:visible}
   .nav ul{flex-direction:column;gap:0}
-  .nav a{display:block;font-family:var(--serif);font-size:1.6rem;color:var(--tinta);padding:14px 0;border-bottom:1px solid var(--linha)}
-  .nav a::after{display:none}
+  .nav ul a{display:block;font-family:var(--serif);font-size:1.6rem;color:var(--tinta);padding:14px 0;border-bottom:1px solid var(--linha)}
+  .nav ul a::after{display:none}
   .topo.menu-aberto{background:var(--creme)}
 }
 
@@ -406,8 +427,11 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 
 <!-- ================= MENU FIXO ================= -->
 <header class="topo" id="topo">
-  <div class="container">
-    <a href="#capa" class="marca-nome" aria-label="Jessica Passos, voltar ao início">Jessica <em>Passos</em></a>
+  <div class="container topo-linha">
+    <a href="#capa" class="marca-nome" aria-label="Jessica Passos, voltar ao início">
+      <span>Jessica <em>Passos</em></span>
+      <small>UGC Creator</small>
+    </a>
     <button class="sanduiche" id="sanduiche" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav">
       <span></span><span></span><span></span>
     </button>
@@ -420,7 +444,19 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
         <li><a href="#numeros">Números</a></li>
         <li><a href="#contato">Contato</a></li>
       </ul>
+      <!-- No celular, os nichos aparecem aqui dentro do menu -->
+      <div class="nav-nichos">
+        <span class="explore">Explore</span>
+        <div class="nichos-links"></div>
+      </div>
+      <a href="#contato" class="nav-cta">Vamos criar?
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
     </nav>
+  </div>
+  <!-- Segunda linha: atalhos para os nichos (os nomes vêm da lista "nichos" no script) -->
+  <div class="container topo-nichos" aria-label="Explore por nicho" role="navigation">
+    <span class="explore">Explore</span>
+    <div class="nichos-links"></div>
   </div>
 </header>
 
@@ -998,8 +1034,26 @@ $("#filtros").addEventListener("click", e => {
   document.querySelectorAll(".filtro").forEach(f => f.setAttribute("aria-pressed", f === b));
   nichoAtual = b.dataset.nicho;
   desenharGaleria(nichoAtual);
+  marcarNichoMenu();
 });
 desenharGaleria(nichoAtual);
+
+/* Atalhos dos nichos no menu de cima: clicou, a página desce até os vídeos já filtrados */
+document.querySelectorAll(".nichos-links").forEach(caixa => {
+  caixa.innerHTML = nichos.filter(n => n.id !== "todos")
+    .map(n => `<a href="#trabalhos" data-ir-nicho="${n.id}">${esc(n.nome)}</a>`).join("");
+});
+function marcarNichoMenu() {
+  document.querySelectorAll("[data-ir-nicho]").forEach(a => a.classList.toggle("ativo", a.dataset.irNicho === nichoAtual));
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-ir-nicho]");
+  if (!a) return;
+  e.preventDefault();
+  const botao = document.querySelector(`.filtro[data-nicho="${a.dataset.irNicho}"]`);
+  if (botao) botao.click();
+  $("#filtros").scrollIntoView({ block: "start" });
+});
 
 /* =========================================================
    LIGAÇÃO COM O PAINEL (banco de dados)
@@ -1260,7 +1314,7 @@ nav.addEventListener("click", e => { if (e.target.closest("a")) menu(false); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && nav.classList.contains("aberto")) { menu(false); sand.focus(); } });
 
 if ("IntersectionObserver" in window) {
-  const links = nav.querySelectorAll("a");
+  const links = nav.querySelectorAll("ul a");
   const ioNav = new IntersectionObserver(ents => {
     ents.forEach(en => {
       if (en.isIntersecting) links.forEach(a => a.classList.toggle("ativo", a.getAttribute("href") === "#" + en.target.id));
