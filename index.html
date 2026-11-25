@@ -251,6 +251,7 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 .depoimento .print{flex:1;display:grid;place-items:center}
 .depoimento .print img{display:block;max-width:100%;height:auto;border-radius:10px}
 .depoimento:first-child{grid-column:1/-1}
+.print-marca{display:block;margin-top:8px;font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9a7a5a}
 
 /* =========================================================
    7. CONTATO
@@ -796,7 +797,7 @@ const resultados = [
 /* Depoimentos: prints dos feedbacks reais, na pasta "depoimentos"
    texto: o que está escrito no print (lido por leitores de tela e pelo Google) */
 const depoimentos = [
-  { imagem: "depoimentos/depoimento-01.jpg", largura: 565, altura: 91, texto: "Eu sou do mundo de marketing então mega valorizo isso. Você foi super certeira, leu minha mente!!!" },
+  { imagem: "depoimentos/depoimento-01.jpg", largura: 565, altura: 91, marca: "Shibata Patio Pinda", texto: "Shibata Patio Pinda: Eu sou do mundo de marketing então mega valorizo isso. Você foi super certeira, leu minha mente!!!" },
   { imagem: "depoimentos/depoimento-02.jpg", largura: 394, altura: 208, texto: "Avaliação 5 estrelas de Bulhoes Ferreira Advogados: Excelente profissional, super indico!" },
   { imagem: "depoimentos/depoimento-03.jpg", largura: 348, altura: 116, texto: "Ouvi Biju: Ficou lindo os vídeos né" },
   { imagem: "depoimentos/depoimento-04.jpg", largura: 387, altura: 120, texto: "Espaço do Revendedor Boticário: Uia... achei que ficou legal!!" },
@@ -1189,7 +1190,7 @@ if ($("#resultados")) $("#resultados").innerHTML = resultados.map((r, i) => `
 /* Depoimentos */
 $("#depoimentos").innerHTML = depoimentos.map((d, i) => `
   <figure class="depoimento reveal d${i % 3 + 1}">
-    <div class="print"><img src="${esc(d.imagem)}" alt="${esc(d.texto)}" width="${d.largura}" height="${d.altura}" loading="lazy"></div>
+    <div class="print"><div><img src="${esc(d.imagem)}" alt="${esc(d.texto)}" width="${d.largura}" height="${d.altura}" loading="lazy">${d.marca ? `<span class="print-marca">${esc(d.marca)}</span>` : ""}</div></div>
   </figure>`).join("");
 
 /* Ano automático */
