@@ -315,9 +315,9 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 .lupa{position:fixed;inset:0;z-index:320;background:rgba(30,21,15,.92);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:clamp(14px,3vw,40px);opacity:0;transition:opacity .3s}
 .lupa.visivel{opacity:1}
 .lupa-palco{position:relative;min-width:0;height:calc(100vh - clamp(28px,6vw,80px) - 40px);display:grid;place-items:center;margin:0}
-.lupa-palco img{max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.lupa-palco img{max-width:100%;max-height:calc(100vh - clamp(28px,6vw,80px) - 40px);width:auto;height:auto;object-fit:contain;box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
 .lupa-vazio{width:min(100%,64vh);aspect-ratio:4/5;display:grid;place-items:center;background:linear-gradient(160deg,#efe4d4,#dcc7aa,#b98a5e);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta)}
-.lupa-legenda{position:absolute;left:0;right:0;bottom:-34px;text-align:center;font-family:var(--mono);font-size:.9rem;color:rgba(241,232,220,.8)}
+.lupa-legenda{position:absolute;left:0;right:0;top:100%;margin-top:10px;text-align:center;font-family:var(--mono);font-size:.9rem;color:rgba(241,232,220,.8)}
 .lupa button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(241,232,220,.35);background:transparent;color:#f1e8dc;cursor:pointer;display:grid;place-items:center;transition:background .25s}
 .lupa button:hover{background:rgba(241,232,220,.14)}
 .lupa button svg{width:20px;height:20px}
@@ -377,11 +377,11 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
   .depoimentos{grid-template-columns:1fr}
   .galeria{grid-template-columns:repeat(2,1fr)}
   .fotos-grid{grid-template-columns:repeat(2,1fr)}  .lupa{grid-template-columns:1fr;padding:60px 12px 90px}
-  .lupa-palco{height:calc(100vh - 170px)}
-  .lupa .lupa-ant,.lupa .lupa-prox{position:absolute;bottom:24px}
+  .lupa-palco{height:calc(100vh - 200px)}  .lupa-palco img{max-height:calc(100vh - 200px)}
+  .lupa .lupa-ant,.lupa .lupa-prox{position:absolute;bottom:12px}
   .lupa .lupa-ant{left:calc(50% - 60px)}
   .lupa .lupa-prox{left:calc(50% + 12px)}
-  .lupa-legenda{bottom:-30px}
+  .lupa-legenda{margin-top:8px;font-size:.8rem}
 }
 @media (max-width:560px){
   :root{--header:64px}
