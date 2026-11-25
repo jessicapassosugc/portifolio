@@ -608,9 +608,9 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 </section>
 
 <!-- ================= FORMATOS E INVESTIMENTO =================
-     Fica ESCONDIDA. Só aparece quando o link tem "?valores", ex:
-     https://jessicapassosugc.github.io/portifolio/?valores
-     Os links das plataformas (Seu Influencer, Destrava) não mostram. -->
+     Aparece para todo mundo, MENOS para quem chega pelos links das
+     plataformas (?utm_source=SeuInfluencer e ?utm_source=Destrava).
+     A regra fica no script, na lista "semValores". -->
 <section class="secao investimento" id="investimento" aria-labelledby="titulo-investimento" hidden>
   <div class="container">
     <div class="cabeca">
@@ -1337,8 +1337,11 @@ if ("IntersectionObserver" in window && !semMovimento) {
 /* =========================================================
    MENU: fundo ao rolar, sanduíche e link ativo
    ========================================================= */
-/* Valores: só aparecem quando o link tem "?valores" (os links das plataformas não têm) */
-if (new URLSearchParams(location.search).has("valores")) {
+/* Valores: aparecem para todo mundo, MENOS quem chega pelos links das plataformas.
+   Para esconder de outra plataforma, acrescente o nome dela nesta lista (em minúsculas). */
+const semValores = ["seuinfluencer", "destrava"];
+const origemLink = (new URLSearchParams(location.search).get("utm_source") || "").trim().toLowerCase();
+if (!semValores.includes(origemLink)) {
   $("#investimento").hidden = false;
   $("#menuInvestimento").hidden = false;
 }
