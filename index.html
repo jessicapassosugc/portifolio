@@ -382,7 +382,19 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
 /* =========================================================
    RESPONSIVO
    ========================================================= */
+/* Formatos e investimento (só aparece com o link especial) */
+.investimento{background:var(--papel)}
+.pacotes{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,2vw,24px)}
+.pacote{background:var(--azul);color:#fff;border-radius:var(--raio-g);padding:clamp(24px,2.6vw,32px);display:flex;flex-direction:column;gap:14px;box-shadow:var(--sombra)}
+.pacote-nome{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3dcc0}
+.pacote p{font-size:1rem;line-height:1.5}
+.pacote strong{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.25);font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,2.4vw,2rem);letter-spacing:-.01em}
+.incluso{list-style:none;padding:0;margin:clamp(30px,4vw,44px) 0 0;display:grid;gap:12px}
+.incluso li{position:relative;padding-left:34px;color:var(--tinta-suave)}
+.incluso li::before{content:"";position:absolute;left:0;top:2px;width:22px;height:22px;border-radius:50%;background:var(--tinta) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12 4 4 8-8'/%3E%3C/svg%3E") center/14px no-repeat}
+
 @media (max-width:1024px){
+  .pacotes{grid-template-columns:repeat(2,1fr)}
   .depoimentos{grid-template-columns:repeat(2,1fr)}  .dep-largo{grid-column:auto}  .dep-fim{grid-column:1/-1}
   .galeria{grid-template-columns:repeat(3,1fr)}
   .servicos-grid{grid-template-columns:repeat(2,1fr)}
@@ -442,6 +454,7 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
         <li><a href="#trabalhos">Trabalhos</a></li>
         <li><a href="#servicos">Serviços</a></li>
         <li><a href="#numeros">Números</a></li>
+        <li id="menuInvestimento" hidden><a href="#investimento">Investimento</a></li>
         <li><a href="#contato">Contato</a></li>
       </ul>
       <!-- No celular, os nichos aparecem aqui dentro do menu -->
@@ -591,6 +604,31 @@ a.case-video:hover .play{transform:scale(1.08);background:var(--azul)}
     <h3 class="sub-titulo reveal">Quem já criou comigo</h3>
     <!-- Depoimentos: array "depoimentos" no script -->
     <div class="depoimentos" id="depoimentos"></div>
+  </div>
+</section>
+
+<!-- ================= FORMATOS E INVESTIMENTO =================
+     Fica ESCONDIDA. Só aparece quando o link tem "?valores", ex:
+     https://jessicapassosugc.github.io/portifolio/?valores
+     Os links das plataformas (Seu Influencer, Destrava) não mostram. -->
+<section class="secao investimento" id="investimento" aria-labelledby="titulo-investimento" hidden>
+  <div class="container">
+    <div class="cabeca">
+      <span class="rotulo reveal">Vamos criar para sua marca?</span>
+      <h2 id="titulo-investimento" class="reveal d1">Formatos e <em>investimento</em>.</h2>
+      <p class="reveal d2">Escolha o pacote que faz sentido para o seu projeto. Depois, alinhamos os detalhes.</p>
+    </div>
+    <div class="pacotes">
+      <div class="pacote reveal d1"><span class="pacote-nome">Pacote 1</span><p>1 vídeo<br>+ 2 fotos</p><strong>R$ 228,00</strong></div>
+      <div class="pacote reveal d2"><span class="pacote-nome">Pacote 2</span><p>2 vídeos<br>+ 3 fotos</p><strong>R$ 420,00</strong></div>
+      <div class="pacote reveal d3"><span class="pacote-nome">Pacote 3</span><p>3 vídeos<br>+ 5 fotos</p><strong>R$ 630,00</strong></div>
+      <div class="pacote reveal d1"><span class="pacote-nome">Pacote 4</span><p>4 vídeos<br>+ 6 fotos</p><strong>R$ 704,00</strong></div>
+    </div>
+    <ul class="incluso reveal">
+      <li>Uso orgânico vitalício nas redes sociais da marca;</li>
+      <li>Uso em anúncios pagos por até 4 meses, sem custo adicional;</li>
+      <li>Entrega em até 10 dias após o recebimento do produto.</li>
+    </ul>
   </div>
 </section>
 
@@ -1299,6 +1337,12 @@ if ("IntersectionObserver" in window && !semMovimento) {
 /* =========================================================
    MENU: fundo ao rolar, sanduíche e link ativo
    ========================================================= */
+/* Valores: só aparecem quando o link tem "?valores" (os links das plataformas não têm) */
+if (new URLSearchParams(location.search).has("valores")) {
+  $("#investimento").hidden = false;
+  $("#menuInvestimento").hidden = false;
+}
+
 const topo = $("#topo"), nav = $("#nav"), sand = $("#sanduiche");
 const aoRolar = () => topo.classList.toggle("rolou", window.scrollY > 20);
 window.addEventListener("scroll", aoRolar, { passive: true }); aoRolar();
